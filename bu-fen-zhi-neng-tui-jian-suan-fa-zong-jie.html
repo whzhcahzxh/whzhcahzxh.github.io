@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Brown Stone  
+Description: A two-column, fixed-width design with dark color scheme.
+Version    : 1.0
+Released   : 20100928
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>部分智能推荐算法总结</title>
+<link href="/theme/css/style.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="/" type="application/atom+xml" rel="alternate" title="Hao's blog ATOM Feed" />
+</head>
+<body>
+<div id="wrapper">
+	<div id="page">
+		<div id="page-bgtop">
+			<div id="page-bgbtm">
+    
+                        	<div id="content">
+					<div class="post">
+						<h2 class="title"><a href="bu-fen-zhi-neng-tui-jian-suan-fa-zong-jie.html">部分智能推荐算法总结</a></h2>
+						<p class="meta"><span class="date">Le 四 23 一月 2014 </span><span class="posted">Par <a href="#">HAO</a></span><span>&nbsp; | Catégorie : <a href="/category/suan-fa.html">算法</a></span></p>
+					<p class="meta">Tags : <span><a href="/tag/suan-fa.html">算法</a> / </span>
+</p>	
+						<div style="clear: both;">&nbsp;</div>
+						<div class="entry">
+						 <p>简介
+目前存在的推荐系统主要分为两种：
+1.基于内容的推荐系统
+方式：通过分析单个用户或资源的原始信息来进行推荐；
+优点：对于稀疏性有一定的抵抗能力；
+缺点：只能发现与已有兴趣相似的资源，难以挖掘新的感兴趣资源；
+2.基于协同过滤的推荐系统
+方式：基于历史上多个用户的访问信息对用户群体的喜好进行分析最后推荐使用者可能感兴趣的资源；
+优点：能有效挖掘出新的感兴趣的资源，且无需考虑资源的表示形式；
+缺点：对于稀疏性高的数据，系统性能会大大降低；</p>
+<p>图模型
+大多数的推荐算法都面临数据稀疏性问题，图模型的算法能明显的改进稀疏性问题、提高推荐准确度。</p>
+<p>图模型：</p>
+<p>(图有小问题，表达意思即可)</p>
+<p>图模型的构造：</p>
+<p>用户对资源进行评分行为可以看作一种联系，表达了用户对资源的偏好。</p>
+<p>对这种联系建立模型，把用户和资源表示成图中的点，如果用户使用过某资源，则在该用户和资源之间连边，把评分作为边的权值。</p>
+<p>加入用户的背景信息：
+  用户背景信息是很强的社会信息，用户的背景能够决定用户对信息资源的需求。背景信息相同的人可能对资源有相似的偏好。</p>
+<p>计算：
+  使用带重启机制的随机游走算法（Random Walk with Restart)，计算一个用户到其他所有用户的相关度。</p>
+<p>RWR算法：算法从图中某个顶点出发，沿图中的边随机游走。在任意点上，算法以一定的概率随机地选择与该顶点相邻的边，沿这条边移动到下一个顶点，或以一定的概率直接回到出发点。对于一个非周期不可约的图，经过若干次随机游走过程，到达图中每一个顶点的概率值达到平稳分布，再次迭代也不改变图中的概率分布值。此时，图中每个点的概率值可以看作该顶点与出发点的联系紧密程度。</p>
+<p>推荐计算过程：</p>
+<p>1.把需要得到推荐的用户顶点作为出发顶点;</p>
+<p>2.在RWR迭代收敛之后，稳定概率值越大的顶点，与目标顶点联系越密切，越应该作为推荐项目。</p>
+<p>3.对得到的稳定概率值进行排序后，排除用户已经看过的资源，把概率值最大的前k个资源作为推荐集合。</p>
+<p>矩阵分解
+矩阵分解的思路是把评分矩阵通过分解，用一个低秩的矩阵来逼近原来的评分矩阵。</p>
+<p>对原来的庞大的常常又非常稀疏的矩阵进行降维和分解，而分解后得到的矩阵都是稠密矩阵。</p>
+<p>v优点：
+Ø比较容易编程实现
+Ø比较低的时间和空间复杂度
+Ø预测的精度比较高
+Ø非常好的扩展性</p>
+<p>缺点:
+Ø推荐的结果不具有很好的可解释性。
+Ø付出的空间代价太大。</p>
+<p>几种矩阵分解方法：
+1.PureSvd(简易)
+•直接对用户评分矩阵R做SVD分解成两个矩阵，未知值填充0；
+2.LatentFactor Model(学术界主流)
+•实现满足一定约束条件的矩阵分解，需要构造一个优化问题；
+3.NMF
+•用于非负的值才有意义的情况，因为上面两个方法都有负值出现；</p>
+<p>Topic model
+Topicmodel(主题模型)
+其实网易的算法可以算是主题模型的一种简易展现。</p>
+<p>1.形成一个用户兴趣向量，通过记录用户的点击，来分析用户对某主题新闻的兴趣，考虑时间段流行度的加权；</p>
+<p>2.用K-means方法对目标用户推荐；
+在主题模型中，主题表示一个概念、一个方面，表现为一系列相关的单词，是这些单词的条件概率。</p>
+<p>通俗来说，一个主题就好像一个“桶”，它装了若干出现概率较高的词语，这些词语和这个主题有很强的相关性。</p>
+<p>对于一段话来说，有些词语可以出自这个“桶”，有些可能来自那个“桶”，一段文本往往是若干个主题的杂合体。我们举个简单的例子，见下图：</p>
+<p>readable
+normally 
+主题模型(topicmodel)可以无监督地对文档和词进行分类。主题模型训练推理有两种：</p>
+<p>1.LDA</p>
+<p>2.pLSA
+LDA可以将一篇文档用多个主题以概率形式组成，pLSA只有一个主题</p>
+<p>增强学习
+增强学习原理：</p>
+<p>Agent通过接收每一个状态下的响应评估来做一个较合理的行为，设定一个回报函数，目标就是最大化回报的和。</p>
+<p>对于控制决策问题，有这么一种解决思路。我们设计一个回报函数（reward function），如果learning agent在决定一步后，获得了较好的结果，那么我们给agent一些回报（比如回报函数结果为正），得到较差的结果，那么回报函数为负。
+比如，四足机器人，如果他向前走了一步（接近目标），那么回报函数为正，后退为负。如果我们能够对每一步进行评价，得到相应的回报函数，那么就好办了，我们只需要找到一条回报值最大的路径（每步的回报之和最大），就认为是最佳的路径。</p>
+<p>增强学习算法用于改进主题模型：</p>
+<p>1.首先利用个性化标签数据和历史访问数据组合构建每个用户向量；
+●
+2.然后在学习用户向量过程中，算法基于强化学习的框架更新用户向量权值，且对较新的用户评价数据给予更高的权重，从而有效反映了用户的最新兴趣;
+●
+3.最后根据学习到的用户兴趣向量，结合协同过滤的思想对用户进行推荐。</p>
+<p>决策树
+决策树构建比较简单：</p>
+<p>1.将所有的用户评分数据映射到<like,dislike, unknown>三维空间上；
+●
+2.从根结点开始，选择最佳的分割项，自顶向下建树；
+●
+3.终止条件，同时考虑以下三种：
+设定树的最大深度；</p>
+<p>设定最佳分割项的误差阈值；</p>
+<p>设定当前节点的最少评分数量；</p>
+<p>集成学习</p>
+<p>集成学习算法(EnsembleLearning):</p>
+<p>将一系列学习器进行学习，并使用某种规则把各个学习结果进行整合从而获得比单个学习器更好的学习效果的一种机器学习方法。</p>
+<p>算法：
+1.Boosting
+2.Bagging</p>
+<p>集成学习</p>
+<p>集成学习算法应用于决策树                    随机森林</p>
+<p>随机森林算法：</p>
+<p>1.可放回抽样；
+2.分类时选一小部分特征；
+3.不剪枝情况下生成tree；
+4.生成一片森林，分类时用每一棵树的结果vote</p>
+<p>Bagging</p>
+<p>Bagging和随机森林的思路相似，随机有放回的采样数据，建立多个训练器，最终预测函数对分类问题采用投票的方式得到结果。</p>
+<p>Boosting</p>
+<p>Boosting的思想是考虑了权重的：</p>
+<p>1.初始化时对每一个训练例赋相等的权重；
+2.然后用该学算法对训练集训练多轮，每次训练后，对训练失败的训练例赋以较大的权重；
+3.得到一个预测函数序列, 预测效果好的预测函数权重较大，反之较小；
+4.最终的预测函数对分类问题采用有权重的投票。</p>
+<p>基于Boosting的个性化推荐算法:</p>
+<p>传统的协同过滤算法中，定位相似人群，利用KNN的方法，将评分乘以人群相似度加权值，取平均。</p>
+<p>定位相似人群是最关键的步骤，其中有传统方法和基于局部结构两种方法；</p>
+<p>传统相似度算法有：
+1.余弦相似度；
+●
+2.正规化余弦相似度；(公式如下)
+●
+3.Pearson相关性；</p>
+<p>I表示商品集合</p>
+<p>r表示评分矩阵</p>
+<p>基于局部结构的相似度计算有：</p>
+<p>1.公共邻居:考虑两个用户之间共同打分的个数；
+●
+2.Salton指标；
+●
+3.Jaccard指标；
+●
+4.Sϕrensen算法；
+●
+I表示商品集合</p>
+<p>r表示评分矩阵</p>
+<p>上述众多的相似度测量方法可以产生众多的弱分类器，利用Boosting的思想来产生最优组合；</p>	
+						</div>
+					</div>
+			      
+					<div style="clear: both;">&nbsp;</div>
+                                        <div class="post">
+                                        <h2 class="title">Commentaires !</h2>
+                                            <div id="disqus_thread"></div>
+                                            <script type="text/javascript">
+                                               var disqus_identifier = "bu-fen-zhi-neng-tui-jian-suan-fa-zong-jie.html";
+                                               (function() {
+                                               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                                               dsq.src = 'http://whzhcahzxh.disqus.com.disqus.com/embed.js';
+                                               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                                              })();
+                                            </script>
+                                        </div>
+				</div>
+				<!-- end #content -->
+				<div id="sidebar">
+					<div id="logo">
+						<h1><a href="">Hao's blog</h1>
+					</div>
+					<div id="menu">
+						<ul>
+							<li class="current_page_item"><a href="">Home</a></li>
+							<li><a href="/archives.html">Archives</a></li>
+						</ul>
+					</div>
+					<ul>
+						<li>
+							<h2>Catégories</h2>
+							<ul>
+								 <li ><a href="/category/coreseek.html">coreseek</a></li>
+								 <li ><a href="/category/github.html">github</a></li>
+								 <li ><a href="/category/sheng-huo.html">生活</a></li>
+								 <li class="active"><a href="/category/suan-fa.html">算法</a></li>
+								 <li ><a href="/category/wen-ben-wa-jue.html">文本挖掘</a></li>
+							</ul>
+						</li>
+						<li>
+							<h2>Blogroll</h2>
+							<ul>
+                                                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                                                            <li><a href="http://python.org/">Python.org</a></li>
+                                                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                                                            <li><a href="#">You can modify those links in your config file</a></li>
+							</ul>
+						</li>
+                                                <li>
+                                                        <h2>Social</h2>
+                                                        <ul>
+                                                            <li><a href="/" rel="alternate">Flux Atom</a></li>
+                                                            <li><a href="http://blog.csdn.net/whzhcahzxh">原csdn_link</a></li>
+                                                            <li><a href="http://weibo.com/itgeeks">我的微博_link</a></li>
+                                                            <li><a href="http://weibo.com/itproduct">新产品平台微博_link</a></li>
+                                                        </ul>
+                                                </li><!-- /.social -->
+						<li>
+						        <h2>Tags</h2>
+						        <ul>
+                                                                <li><a href="/tag/coreseek.html">coreseek</a></li>
+                                                                <li><a href="/tag/suan-fa.html">算法</a></li>
+                                                                <li><a href="/tag/github.html">github</a></li>
+                                                                <li><a href="/tag/start-2013.html">start， 2013</a></li>
+                                                                <li><a href="/tag/python.html">Python</a></li>
+                                                                <li><a href="/tag/mongodb.html">mongoDB</a></li>
+                                                                <li><a href="/tag/tf-idf.html">TF-IDF</a></li>
+                                                                <li><a href="/tag/shu-ling.html">舒凌</a></li>
+                                                                <li><a href="/tag/wen-ben-wa-jue.html">文本挖掘</a></li>
+                                                                <li><a href="/tag/r.html">R</a></li>
+                                                                <li><a href="/tag/ubuntu.html">Ubuntu</a></li>
+                                                                <li><a href="/tag/gensim.html">gensim</a></li>
+						        </ul>
+						</li>
+						
+						
+					</ul>
+				</div>
+				<!-- end #sidebar -->
+				<div style="clear: both;">&nbsp;</div>
+			</div>
+		</div>
+	</div>
+	<!-- end #page -->
+
+<div id="footer">
+	<p>Copyright (c) 2008 Sitename.com. All rights reserved. Design by <a href="http://www.freecsstemplates.org/">CSS Templates</a>.</p>
+	<p>Proudly powered by <a href="http://alexis.notmyidea.org/pelican/">pelican</a>, which takes great advantages of <a href="http://python.org">python</a>.
+</p>
+</div>
+    <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+    try {
+        var pageTracker = _gat._getTracker("UA-47448544-1");
+    pageTracker._trackPageview();
+    } catch(err) {}</script>
+<!-- end #footer -->
+</body>
+</html>

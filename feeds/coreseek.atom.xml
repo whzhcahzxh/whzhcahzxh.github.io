@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Hao's blog</title><link href="/" rel="alternate"></link><link href="/feeds/coreseek.atom.xml" rel="self"></link><id>/</id><updated>2014-01-23T17:11:00+08:00</updated><entry><title>ubuntu 12.04安装coreseek 4.1beta</title><link href="/ubuntu-1204an-zhuang-coreseek-41beta.html" rel="alternate"></link><updated>2014-01-23T17:11:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:ubuntu-1204an-zhuang-coreseek-41beta.html</id><summary type="html">&lt;p&gt;coreseek安装需要预装的软件：
+shell&amp;gt;apt-get install make gcc g++ automake libtool m4 autoconf mysql-client libmysqlclient15-dev libxml2-dev libexpat1-dev&lt;/p&gt;
+&lt;h2&gt;切换到root用户，确保拥有完整的权限来安装软件&lt;/h2&gt;
+&lt;p&gt;$ su root&lt;/p&gt;
+&lt;p&gt;$ cd coreseek-4.1-beta&lt;/p&gt;
+&lt;h2&gt;中文测试环境检查：&lt;/h2&gt;
+&lt;p&gt;$  locale&lt;/p&gt;
+&lt;h2&gt;以下为核心项，locale为zh_CN.UTF-8，就可以正常显示和输入中文；&lt;/h2&gt;
+&lt;h2&gt;如果不能正常显示中文，则后面的中文测试部分无法正常进行，但不会影响coreseek的实际功能；&lt;/h2&gt;
+&lt;p&gt;LANG=zh_CN.UTF-8
+LC_ALL="zh_CN.UTF-8"&lt;/p&gt;
+&lt;h2&gt;确保可以正常显示，否则请检查当前环境的locale配置，以及当前环境或者客户端已设置好支持UTF-8中文字符显示&lt;/h2&gt;
+&lt;p&gt;$ cat testpack/var/test/test.xml&lt;/p&gt;
+&lt;h2&gt;安装coreseek开发的mmseg，为coreseek提供中文分词功能&lt;/h2&gt;
+&lt;p&gt;$ cd mmseg-3.2.14&lt;/p&gt;
+&lt;h2&gt;ubuntu环境下，需要使用ACLOCAL_FLAGS="-I /usr/share/aclocal" ./bootstrap&lt;/h2&gt;
+&lt;p&gt;$ ./bootstrap
+$ ./configure --prefix=/usr/local/mmseg3
+$ make &amp;amp;&amp;amp; make install&lt;/p&gt;
+&lt;h2&gt;如果提示libtool: unrecognized option `--tag=CC' ，请查看libtool问题解决方案&lt;/h2&gt;
+&lt;h2&gt;安装完成后，mmseg使用的词典和配置文件，将自动安装到/usr/local/mmseg3/etc中&lt;/h2&gt;
+&lt;h2&gt;中文分词测试，显示不正常，请检查当前环境下的locale和UTF-8中文字符显示设置&lt;/h2&gt;
+&lt;p&gt;$  /usr/local/mmseg3/bin/mmseg -d /usr/local/mmseg3/etc src/t1.txt
+    中文/x 分/x 词/x 测试/x 
+    中国人/x 上海市/x 
+Word Splite took: 1 ms.&lt;/p&gt;
+&lt;h2&gt;安装coreseek：&lt;/h2&gt;
+&lt;p&gt;$ cd csft-/usr/local/coreseek/bin/indexer -c etc/csft.conf --all --rotate&lt;/p&gt;
+&lt;h2&gt;执行configure，进行编译配置：&lt;/h2&gt;
+&lt;p&gt;$ sh buildconf.sh
+$ ./configure --prefix=/usr/local/coreseek --without-python --without-unixodbc --with-mmseg --with-mmseg-includes=/usr/local/mmseg3/include/mmseg/ --with-mmseg-libs=/usr/local/mmseg3/lib/ --with-mysql&lt;/p&gt;
+&lt;p&gt;$ make &amp;amp;&amp;amp; make install&lt;/p&gt;
+&lt;p&gt;如果编译出错，出现类似于：
+make[2]: &lt;strong&gt;&lt;em&gt; [sphinxexpr.o] Error 1
+make[2]: Leaving directory &lt;code&gt;/home/mac/Downloads/coreseek-4.1-beta/csft-4.1/src'
+make[1]: *** [all] Error 2
+make[1]: Leaving directory&lt;/code&gt;/home/mac/Downloads/coreseek-4.1-beta/csft-4.1/src'
+make: &lt;/em&gt;&lt;/strong&gt; [all-recursive] Error 1
+的问题，需要打一个补丁：&lt;/p&gt;
+&lt;p&gt;一个有用的链接：http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=667378，是关于coreseek上游的sphinx的同样问题的，看了一下了解似乎是gcc 4.7的C++作用域的问题，上面的debian bugs里面提供了一个patch，看了下patch的内容，也对自己本地的coreseek的制作了同样的补丁，压缩包发布如下，使用时注意版本：sphinxexpr.cpp.patch.zip&lt;/p&gt;
+&lt;p&gt;root@china:/home/china/Downloads/coreseek-4.1-beta/csft-4.1# patch -p1 &amp;lt; /home/china/Downloads/sphinxexpr.cpp-csft-4.1-beta.patch
+can't find file to patch at input line 3
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:&lt;/p&gt;
+&lt;hr /&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;--- /home/china/Downloads/coreseek-4.1-beta/csft-4.1/src/sphinxexpr.cpp    2011-10-07 20:08:58.000000000 +0800&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;--------------------------&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;File to patch:&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;在file to patch:后输入sphinxexpr.cpp文件的位置  我当时输入的是  /home/china/Downloads/coreseek-4.1-beta/csft-4.1/src/sphinxexpr.cpp&lt;/p&gt;
+&lt;p&gt;补丁打后就可以直接编译通过了&lt;/p&gt;
+&lt;h2&gt;配置测试，测试是否可以正确运行&lt;/h2&gt;
+&lt;p&gt;$ /usr/local/coreseek/bin/indexer -c /usr/local/coreseek/etc/sphinx-min.conf.dist&lt;/p&gt;
+&lt;h2&gt;以下为正常测试时的提示信息：&lt;/h2&gt;
+&lt;p&gt;Coreseek Fulltext 4.1 [ Sphinx 2.0.2-dev (r2922)]
+Copyright (c) 2007-2011,
+Beijing Choice Software Technologies Inc (http://www.coreseek.com)&lt;/p&gt;
+&lt;p&gt;ERROR: nothing to do.&lt;/p&gt;
+&lt;h2&gt;至此，coreseek基础环境正常安装&lt;/h2&gt;
+&lt;p&gt;$ cd testpack&lt;/p&gt;
+&lt;p&gt;$  /usr/local/coreseek/bin/indexer -c etc/csft.conf --all&lt;/p&gt;
+&lt;p&gt;$ /usr/local/coreseek/bin/search -c etc/csft.conf -a 服务&lt;/p&gt;
+&lt;h2&gt;以下为正常测试搜索关键词"服务"的数据&lt;/h2&gt;
+&lt;p&gt;Coreseek Fulltext 4.1 [ Sphinx 2.0.2-dev (r2922)]
+Copyright (c) 2007-2011,
+Beijing Choice Software Technologies Inc (http://www.coreseek.com)&lt;/p&gt;
+&lt;p&gt;using config file 'etc/csft.conf'...
+index 'xml': query '服务 ': returned 1 matches of 1 total in 0.015 sec&lt;/p&gt;
+&lt;p&gt;displaying matches:
+1. document=3, weight=1, published=Wed Mar 31 21:01:00 2010, author_id=2&lt;/p&gt;
+&lt;p&gt;words:
+1. '服务': 1 documents, 1 hits&lt;/p&gt;
+&lt;p&gt;$  /usr/local/coreseek/bin/searchd -c etc/csft.conf&lt;/p&gt;
+&lt;h2&gt;以下为正常开启搜索服务时的提示信息：（csft-4.0版类似）&lt;/h2&gt;
+&lt;p&gt;Coreseek Fulltext 4.1 [ Sphinx 2.0.2-dev (r2922)]
+    Copyright (c) 2007-2010,
+    Beijing Choice Software Technologies Inc (http://www.coreseek.com)&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;using&lt;/span&gt; &lt;span class="n"&gt;config&lt;/span&gt; &lt;span class="n"&gt;file&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;etc&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;csft&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="n"&gt;listening&lt;/span&gt; &lt;span class="n"&gt;on&lt;/span&gt; &lt;span class="n"&gt;all&lt;/span&gt; &lt;span class="n"&gt;interfaces&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;9312&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;如要停止搜索服务，/usr/local/coreseek/bin/searchd -c etc/csft.conf --stop&lt;/h2&gt;
+&lt;h2&gt;如要已启动服务，要更新索引，/usr/local/coreseek/bin/indexer -c etc/csft.conf --all --rotate&lt;/h2&gt;
+&lt;h2&gt;然后，请参考csft-4.1下api目录中的相关文件，使用PHP、Python、Ruby、Java来测试搜索服务；也可以前往&amp;lt; a href="/products-install/step_by_step/"&amp;gt;搜索服务建立三步曲，查看第三步使用PHP测试。&lt;/h2&gt;
+&lt;p&gt;文章参考了并自己测试通过：http://blog.csdn.net/liangpz521/article/details/8795286和http://blog.csdn.net/andybegin/article/details/8724506
+感谢原作者&lt;/p&gt;</summary><category term="coreseek"></category><category term="Ubuntu"></category></entry><entry><title>coreseek搭配使用python源</title><link href="/coreseekda-pei-shi-yong-pythonyuan.html" rel="alternate"></link><updated>2014-01-23T17:08:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:coreseekda-pei-shi-yong-pythonyuan.html</id><summary type="html">&lt;p&gt;网络资料真少啊，官方给的文档还算详细，但是没有交流就没有成功，开源的意义&lt;/p&gt;
+&lt;p&gt;Ubuntu环境下使用：&lt;/p&gt;
+&lt;p&gt;不知道为啥，搭配好环境后，原本在cmd栏下直接运行python的脚本命令找不到了，只能用运行python2.7来执行相同操作，求解&lt;/p&gt;
+&lt;p&gt;下载的coreseek自己提供的测试数据和conf文件，配置主要是将 path = /usr/bin/python2设定为电脑装有python可执行程序的位置，我的机器位置如上&lt;/p&gt;
+&lt;p&gt;python路径定义提供的是python源的位置，脚本的位置&lt;/p&gt;
+&lt;p&gt;源定义基本不用改，在python文件中采用相同格式即可&lt;/p&gt;
+&lt;p&gt;csft_demo_python.conf内容:&lt;/p&gt;
+&lt;h1&gt;python路径定义&lt;/h1&gt;
+&lt;p _="
+" _usr_local_coreseek_etc_pysource="/usr/local/coreseek/etc/pysource" _usr_local_coreseek_etc_pysource_csft_demo="/usr/local/coreseek/etc/pysource/csft_demo" etc_pysource="etc/pysource" etc_pysource_csft_demo="etc/pysource/csft_demo" id="Windows环境下设置，最好给出绝对路径" path="path"&gt;python &lt;/p&gt;
+&lt;h1&gt;源定义&lt;/h1&gt;
+&lt;p&gt;source python 
+{ 
+    type = python 
+    name = csft_demo.MainSource #对应etc/pysource/csft_demo/&lt;strong&gt;init&lt;/strong&gt;.py中的MainSource&lt;br /&gt;
+} &lt;/p&gt;
+&lt;h1&gt;index定义&lt;/h1&gt;
+&lt;p 0="0" 1="1" _="
+" _usr_bin_python2="/usr/bin/python2" _usr_local_mmseg3_etc_="/usr/local/mmseg3/etc/" charset_dictpath="charset_dictpath" charset_type="charset_type" docinfo="docinfo" etc_="etc/" extern="extern" html_strip="html_strip" id="Windows环境下设置，/符号结尾" min_word_len="min_word_len" mlock="mlock" morphology="morphology" none="none" path="path" python="python" source="source" zh_cn.utf-8="zh_cn.utf-8"&gt;index python &lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;init&lt;/strong&gt;.py内容:&lt;/p&gt;
+&lt;h1&gt;-&lt;em&gt;- coding:utf-8 -&lt;/em&gt;-&lt;/h1&gt;
+&lt;h1&gt;coreseek3.2 python source演示&lt;/h1&gt;
+&lt;h1&gt;author: HonestQiao&lt;/h1&gt;
+&lt;h1&gt;date: 2010-06-03 11:46&lt;/h1&gt;
+&lt;p&gt;class MainSource(object): 
+    def &lt;strong&gt;init&lt;/strong&gt;(self, conf): 
+        self.conf =  conf 
+        self.idx = 0 
+        self.data = [ 
+            {'id':1, 'subject':u'国土部：5千万亩耕地中重度污染 不能再耕种', 'context':u'原标题：王世元: 中重度污染耕地5000万亩 每年将投数百亿治理修复新华网北京12月30日电（记者 陶叶）30日上午，国务院新闻办公室举行新闻发布会，请国土资源部副部长、国务院第二次全国土地调查领导小组办公室主任王世元和国家统计局副局长张为民等介绍第二次全国土地调查主要数据成果。', 'published':1270131607, 'author_id':1},
+            {'id':2, 'subject':u'Twitter主页改版 推普通用户消息增加趋势话题', 'context':u'4月1日消息，据国外媒体报道，Twitter本周二推出新版主页，目的很简单：帮助新用户了解Twitter和增加用户黏稠度。', 'published':1270135548, 'author_id':1},
+            {'id':3, 'subject':u'张艺谋超生游击队', 'context':u'Opera一直都被认为是浏览速度飞快，同时在移动平台上更是占有不少的份额。', 'published':1270094460, 'author_id':2},
+        ] &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;GetScheme&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  &lt;span class="err"&gt;#获取结构，&lt;/span&gt;&lt;span class="n"&gt;docid&lt;/span&gt;&lt;span class="err"&gt;、文本、整数&lt;/span&gt; 
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt; 
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;docid&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;True&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt; 
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt; 
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt; 
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;published&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;integer&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt; 
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;author_id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;integer&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt; 
+    &lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;GetFieldOrder&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="err"&gt;#字段的优先顺序&lt;/span&gt; 
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
+
+&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;Connected&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;   &lt;span class="err"&gt;#如果是数据库，则在此处做数据库连接&lt;/span&gt; 
+    &lt;span class="n"&gt;pass&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;源码中的输入参数只有一个，但是我的机器报错，说需要输入一个，但是提供了两个，因为coreseek的不透明，我就直接在这里加了一个_，没有问题&lt;/h1&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;NextDocument&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;_&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;   &lt;span class="err"&gt;#取得每一个文档记录的调用&lt;/span&gt; 
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; 
+        &lt;span class="n"&gt;item&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; 
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="err"&gt;#&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;docid&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;True&lt;/span&gt; 
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="n"&gt;encode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;utf&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; 
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="n"&gt;encode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;utf&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; 
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;published&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;published&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; 
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;author_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;author_id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; 
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; 
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;True&lt;/span&gt; 
+    &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; 
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;False&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;if &lt;strong&gt;name&lt;/strong&gt; == "&lt;strong&gt;main&lt;/strong&gt;":    #直接访问演示部分 
+    conf = {} 
+    source = MainSource(conf) 
+    source.Connected() &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NextDocument&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; 
+    &lt;span class="n"&gt;print&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;id=%d, subject=%s&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; 
+&lt;span class="n"&gt;pass&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;eof&lt;/h1&gt;</summary><category term="coreseek"></category><category term="Ubuntu"></category><category term="Python"></category></entry><entry><title>coreseek通过python读取mongoDB数据</title><link href="/coreseektong-guo-pythondu-qu-mongodbshu-ju.html" rel="alternate"></link><updated>2014-01-23T17:07:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:coreseektong-guo-pythondu-qu-mongodbshu-ju.html</id><summary type="html">&lt;p&gt;coreseek的资料真少啊，不人性化&lt;/p&gt;
+&lt;p&gt;官方内容一定要看，进行中...&lt;/p&gt;
+&lt;p&gt;http://www.tapy.org/sphinx1.0/sphinx.html&lt;/p&gt;
+&lt;p&gt;http://www.coreseek.cn/docs/coreseek_4.1-sphinx_2.0.1-beta.html&lt;/p&gt;
+&lt;p&gt;mongoDB不是coreseek/sphinx支持的格式，因此我用python读入mongoDB数据，然后转成python数据源，用coreseek建立索引&lt;/p&gt;
+&lt;p&gt;[python] view plaincopy在CODE上查看代码片派生到我的代码片&lt;/p&gt;
+&lt;h1&gt;-&lt;em&gt;- coding:utf-8 -&lt;/em&gt;-&lt;/h1&gt;
+&lt;h1&gt;author: Hao&lt;/h1&gt;
+&lt;p&gt;import pymongo&lt;br /&gt;
+class MainSource(object):&lt;br /&gt;
+    def &lt;strong&gt;init&lt;/strong&gt;(self, conf):&lt;br /&gt;
+        self.conf =  conf&lt;br /&gt;
+        self.idx = 0         &lt;br /&gt;
+        self.data=[]&lt;br /&gt;
+        self.conn = None&lt;br /&gt;
+        self.cur = None  &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;GetScheme&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  &lt;span class="err"&gt;#获取结构，&lt;/span&gt;&lt;span class="n"&gt;docid&lt;/span&gt;&lt;span class="err"&gt;、文本、整数&lt;/span&gt;  
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;  
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;docid&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;True&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt;  
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt;  
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt;  
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;published&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;integer&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt;  
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;author_id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;integer&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt;  
+    &lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;GetFieldOrder&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  &lt;span class="err"&gt;#选择被搜索字段，并决定字段的优先顺序&lt;/span&gt;  
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
+
+&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;Connected&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;   &lt;span class="err"&gt;#如果是数据库，则在此处做数据库连接&lt;/span&gt;  
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;conn&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;None&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  
+        &lt;span class="err"&gt;#读入数据库数据&lt;/span&gt;  
+        &lt;span class="n"&gt;conn&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pymongo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Connection&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;localhost&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;27017&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  
+        &lt;span class="n"&gt;db&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;conn&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;test&lt;/span&gt;  
+        &lt;span class="n"&gt;dbCollection&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;database&lt;/span&gt;
+
+        &lt;span class="n"&gt;commentset&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[]&lt;/span&gt;  
+        &lt;span class="n"&gt;cursor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;dbCollection&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;  
+        &lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;  
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;commentPiece&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;cursor&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  
+            &lt;span class="n"&gt;sentence&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;commentPiece&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;content&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;  
+            &lt;span class="n"&gt;commentset&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sentence&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;commentset&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  
+            &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;u&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;number&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;str&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;commentset&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;published&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;00001&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;author_id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="p"&gt;})&lt;/span&gt;  
+    &lt;span class="n"&gt;pass&lt;/span&gt;
+
+&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;NextDocument&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;_&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;   &lt;span class="err"&gt;#取得每一个文档记录的调用&lt;/span&gt;  
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  
+        &lt;span class="n"&gt;item&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;  
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="err"&gt;#&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;docid&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;True&lt;/span&gt;  
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="n"&gt;encode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;utf&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="n"&gt;encode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;utf&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;published&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;published&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;  
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;author_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;author_id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;  
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;  
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;True&lt;/span&gt;  
+    &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;False&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;if &lt;strong&gt;name&lt;/strong&gt; == "&lt;strong&gt;main&lt;/strong&gt;":    #直接访问演示部分  &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;conf&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;  
+&lt;span class="n"&gt;source&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;MainSource&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  
+&lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Connected&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NextDocument&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  
+    &lt;span class="n"&gt;print&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;id=%d, context=%s&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  
+&lt;span class="n"&gt;pass&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;eof&lt;/h1&gt;
+&lt;p&gt;刚刚一直无法将文件的id设置成功，一开始怀疑是&lt;/p&gt;
+&lt;p&gt;[python] view plaincopy在CODE上查看代码片派生到我的代码片
+'id' , {'docid':True, }&lt;br /&gt;
+的格式要求不对，后来发现这个好像是固定写法，根据他人的格式，这种写法，docid完全可以是1、2、3、4、5...&lt;/p&gt;
+&lt;p&gt;纠结啊，网上找不到资料，所以试出来之后写个blog给大家&lt;/p&gt;
+&lt;p&gt;[python] view plaincopy在CODE上查看代码片派生到我的代码片
+self.data.append({'id':i&lt;span style="background-color: rgb(102, 255, 255);"&gt;&lt;span style="color:#FF0000;"&gt;+1&lt;/span&gt;&lt;/span&gt;, 'subject':u'number'+str(i),'context':commentset[i], 'published':00001, 'author_id':1 })&lt;br /&gt;
+出现问题的原因是因为，docid必须是非零正整数，这里 i in range（）是从0开始的计数，所以，一直是报错状态&lt;/p&gt;
+&lt;p&gt;另外，一开始试图将mongoDB的数据放在__init__方法中，失败了，还以为是必须要放在Connected这个方法内，事实证明，也是因为id从0开始报错的原因。如果不嫌丑陋，&lt;/p&gt;
+&lt;p&gt;[python] view plaincopy在CODE上查看代码片派生到我的代码片&lt;/p&gt;
+&lt;h1&gt;读入数据库数据&lt;/h1&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;       &lt;span class="n"&gt;conn&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pymongo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Connection&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;localhost&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;27017&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  
+       &lt;span class="n"&gt;db&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;conn&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;test&lt;/span&gt;  
+       &lt;span class="n"&gt;dbCollection&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;database&lt;/span&gt;
+
+       &lt;span class="n"&gt;commentset&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[]&lt;/span&gt;  
+       &lt;span class="n"&gt;cursor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;dbCollection&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;  
+       &lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;  
+       &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;commentPiece&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;cursor&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  
+           &lt;span class="n"&gt;sentence&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;commentPiece&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;content&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;  
+           &lt;span class="n"&gt;commentset&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sentence&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  
+       &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;commentset&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  
+           &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;u&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;number&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;str&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;commentset&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;published&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;00001&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;author_id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="p"&gt;})&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这一段可以放在__init__方法中&lt;/p&gt;
+&lt;p&gt;继续探索，good luck to you and me&lt;/p&gt;</summary><category term="coreseek"></category><category term="Ubuntu"></category><category term="Python"></category><category term="mongoDB"></category></entry><entry><title>coreseek配置</title><link href="/coreseekpei-zhi.html" rel="alternate"></link><updated>2014-01-23T17:06:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:coreseekpei-zhi.html</id><summary type="html">&lt;p&gt;Ubuntu上使用coreseek&lt;/p&gt;
+&lt;p&gt;建立索引&lt;/p&gt;
+&lt;p&gt;/usr/local/coreseek/bin/indexer -c csft_demo_python.conf --all&lt;/p&gt;
+&lt;p&gt;查询索引
+/usr/local/coreseek/bin/search -c csft_demo_python.conf -a 性能&lt;/p&gt;
+&lt;p&gt;启动服务进程：
+/usr/local/coreseek/bin/searchd -c csft.conf&lt;/p&gt;
+&lt;p&gt;关闭conf
+/usr/local/coreseek/bin/searchd -c csft.conf --stop&lt;/p&gt;
+&lt;p&gt;先建立索引，然后启动服务，结束后关闭conf&lt;/p&gt;
+&lt;p&gt;增量索引
+/usr/local/coreseek/bin/indexer -c csft_demo_python.conf main --rotate&lt;/p&gt;
+&lt;p&gt;/usr/local/coreseek/bin/searchd -c csft_demo_python.conf&lt;/p&gt;
+&lt;p&gt;/usr/local/coreseek/bin/indexer -c csft_demo_python.conf delta --rotate&lt;/p&gt;
+&lt;p&gt;/usr/local/coreseek/bin/indexer -c csft_demo_python.conf --merge main delta --merge-dst-range deleted 0 0 --rotate&lt;/p&gt;
+&lt;p&gt;测试:
+/usr/local/coreseek/bin/search -c csft_demo_python.conf -a 本版&lt;/p&gt;</summary><category term="coreseek"></category><category term="Ubuntu"></category></entry></feed>

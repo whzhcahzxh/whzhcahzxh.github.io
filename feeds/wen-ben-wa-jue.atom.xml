@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Hao's blog</title><link href="/" rel="alternate"></link><link href="/feeds/wen-ben-wa-jue.atom.xml" rel="self"></link><id>/</id><updated>2014-01-23T17:14:00+08:00</updated><entry><title>R语言解决MongoDB中文编码问题</title><link href="/ryu-yan-jie-jue-mongodbzhong-wen-bian-ma-wen-ti.html" rel="alternate"></link><updated>2014-01-23T17:14:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:ryu-yan-jie-jue-mongodbzhong-wen-bian-ma-wen-ti.html</id><summary type="html">&lt;p&gt;R语言的中文支持不好，采用的编码方式常常优先考虑西方语言，http://developer.r-project.org/Encodings_and_R.html中有介绍&lt;/p&gt;
+&lt;p&gt;而MongoDB中储存的中文采用的是UTF-8格式编码，因此&lt;/p&gt;
+&lt;p&gt;p &amp;lt;- mongo.find.all(mongo,ns)
+temp&amp;lt;-unlist(p[1,2]);&lt;/p&gt;
+&lt;p&gt;读出的数据temp中，中文无法显示操作&lt;/p&gt;
+&lt;p&gt;将中文改变编码格式的函数是&lt;/p&gt;
+&lt;p&gt;Encoding(temp)&amp;lt;-"UTF-8";&lt;/p&gt;
+&lt;p&gt;此时的temp就是可以正常显示的了&lt;/p&gt;
+&lt;p&gt;搜索MongoDB中的字符串的时候，想find一个中文字符串，可以考虑先将中文从GB2312转到utf-8，搜索后，再转回来，转为utf-8的方法是：&lt;/p&gt;
+&lt;p&gt;queryString&amp;lt;-"求回复";&lt;/p&gt;
+&lt;h1&gt;编码转换&lt;/h1&gt;
+&lt;p&gt;data3=iconv(queryString, from='GB2312', to='utf-8')&lt;/p&gt;
+&lt;h1&gt;搜索&lt;/h1&gt;
+&lt;p&gt;buf &amp;lt;- mongo.bson.buffer.create()
+mongo.bson.buffer.append(buf, "content", queryString)
+query &amp;lt;- mongo.bson.from.buffer(buf)&lt;br /&gt;
+mongo.find.one(mongo, ns, query)&lt;/p&gt;</summary><category term="R"></category><category term="mongoDB"></category></entry><entry><title>gensim做主题模型</title><link href="/gensimzuo-zhu-ti-mo-xing.html" rel="alternate"></link><updated>2014-01-23T17:12:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:gensimzuo-zhu-ti-mo-xing.html</id><summary type="html">&lt;p&gt;作为python的一个库，gensim给了文本主题模型足够的方便，像他自己的介绍一样，topic modelling for humans&lt;/p&gt;
+&lt;p&gt;具体的tutorial可以参看他的官方网页，当然是全英文的，http://radimrehurek.com/gensim/tutorial.html&lt;/p&gt;
+&lt;p&gt;由于这个链接打开速度太慢太慢，我决定写个中文总结：（文章参考了52nlp的博客，参看http://www.52nlp.cn）&lt;/p&gt;
+&lt;p&gt;安装就不用说了，在ubuntu环境下，sudo easy_install gensim即可&lt;/p&gt;
+&lt;p&gt;首先，引用gensim包，gensim包中引用corpora,models, similarities，分别做语料库建立，模型库和相似度比较库，后面可以看到例子&lt;/p&gt;
+&lt;p&gt;from gensim import corpora, models, similarities&lt;/p&gt;
+&lt;p&gt;我调用了结巴分词做中文处理，所以同样&lt;/p&gt;
+&lt;p&gt;import jieba&lt;/p&gt;
+&lt;p&gt;手工写个文本列表&lt;/p&gt;
+&lt;p&gt;sentences = ["我喜欢吃土豆","土豆是个百搭的东西","我不喜欢今天雾霾的北京"]&lt;/p&gt;
+&lt;p&gt;用结巴分词后待用，因为gensim包做主题模型，在意的是语料库，所以，中文英文，one-term，two-term都是无所谓的，如果有已经生成好的语料库，那么可以考虑直接跳到建模环节&lt;/p&gt;
+&lt;p&gt;官方提供的语料库范例是这样的：&lt;/p&gt;
+&lt;p&gt;corpus = [[(0, 1.0), (1, 1.0), (2, 1.0)],&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;      &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)],&lt;/span&gt;
+      &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)],&lt;/span&gt;
+      &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;2.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)],&lt;/span&gt;
+      &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)],&lt;/span&gt;
+      &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)],&lt;/span&gt;
+      &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)],&lt;/span&gt;
+      &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)],&lt;/span&gt;
+      &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)]]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;每个中括号代表一句话，用逗号隔开，（0，1.0）代表词典中编号为0的词出现了一次，以此类推，很好理解&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;回到过程中来，将范例的语句分词&lt;/p&gt;
+&lt;p&gt;words=[]
+for doc in sentences:
+    words.append(list(jieba.cut(doc)))
+print words&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;[[u'\u6211', u'\u559c\u6b22', u'\u5403', u'\u571f\u8c46'], [u'\u571f\u8c46', u'\u662f', u'\u4e2a', u'\u767e', u'\u642d', u'\u7684', u'\u4e1c\u897f'], [u'\u6211', u'\u4e0d', u'\u559c\u6b22', u'\u4eca\u5929', u'\u96fe', u'\u973e', u'\u7684', u'\u5317\u4eac']]&lt;/p&gt;
+&lt;p&gt;此时输出的格式为unicode，不影响后期运算，因此我保留不变，如果想看分词结果可以用循环输出jieba分词结果&lt;/p&gt;
+&lt;p&gt;得到的分词结果构造词典&lt;/p&gt;
+&lt;p&gt;dic = corpora.Dictionary(words)
+print dic
+print dic.token2id&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;Dictionary(15 unique tokens)
+{'\xe5\x8c\x97\xe4\xba\xac': 12, '\xe6\x90\xad': 6, '\xe7\x9a\x84': 9, '\xe5\x96\x9c\xe6\xac\xa2': 1, '\xe4\xb8\x8d': 10, '\xe4\xb8\x9c\xe8\xa5\xbf': 4, '\xe5\x9c\x9f\xe8\xb1\x86': 2, '\xe9\x9c\xbe': 14, '\xe6\x98\xaf': 7, '\xe4\xb8\xaa': 5, '\xe9\x9b\xbe': 13, '\xe7\x99\xbe': 8, '\xe4\xbb\x8a\xe5\xa4\xa9': 11, '\xe6\x88\x91': 3, '\xe5\x90\x83': 0}
+可以看到各个词或词组在字典中的编号&lt;/p&gt;
+&lt;p&gt;为了方便看，我给了个循环输出：&lt;/p&gt;
+&lt;p&gt;for word,index in dic.token2id.iteritems():
+    print word +" 编号为:"+ str(index)&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;北京 编号为:12
+搭 编号为:6
+的 编号为:9
+喜欢 编号为:1
+不 编号为:10
+东西 编号为:4
+土豆 编号为:2
+霾 编号为:14
+是 编号为:7
+个 编号为:5
+雾 编号为:13
+百 编号为:8
+今天 编号为:11
+我 编号为:3
+吃 编号为:0&lt;/p&gt;
+&lt;p&gt;为什么是乱序，我也不知道&lt;/p&gt;
+&lt;p&gt;词典生成好之后，就开始生成语料库了&lt;/p&gt;
+&lt;p&gt;corpus = [dic.doc2bow(text) for text in words]
+print corpus&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;[[(0, 1), (1, 1), (2, 1), (3, 1)], [(2, 1), (4, 1), (5, 1), (6, 1), (7, 1), (8, 1), (9, 1)], [(1, 1), (3, 1), (9, 1), (10, 1), (11, 1), (12, 1), (13, 1), (14, 1)]]&lt;/p&gt;
+&lt;p&gt;语料库的官方描述写的是向量空间模型格式的语料库，Corpus is simply an object which, when iterated over, returns its documents represented as sparse vectors.&lt;/p&gt;
+&lt;p&gt;官方说明给了一个tips：&lt;/p&gt;
+&lt;p&gt;In this example, the whole corpus is stored in memory, as a Python list. However,the corpus interface only dictates that a corpus must support iteration over its constituent documents. For very large corpora, it is advantageous to keep the corpus on disk, and access its documents sequentially, one at a time. All the operations and transformations are implemented in such a way that makes them independent of the size of the corpus, memory-wise.&lt;/p&gt;
+&lt;p&gt;大概意思就是说范例中的语料库是存在内存中的一个列表格式，但是接口对语料库的要求只是，支持在构建文本文件中可循环即可，因此对于很大的语料库，最好还是存在硬盘上，然后依次访问文件。这样可以不用考虑语料库的size，也避免了内存占用太多&lt;/p&gt;
+&lt;p&gt;此时，得到了语料库，接下来做一个TF-IDF变换&lt;/p&gt;
+&lt;p&gt;可以理解成 将用词频向量表示一句话 变换成为用 词的重要性向量表示一句话&lt;/p&gt;
+&lt;p&gt;（TF-IDF变换：评估一字词对于一个文件集或一个语料库中的其中一份文件的重要程度。字词的重要性随着它在文件中出现的次数成正比增加，但同时会随着它在语料库中出现的频率成反比下降。）&lt;/p&gt;
+&lt;p&gt;tfidf = models.TfidfModel(corpus)&lt;/p&gt;
+&lt;p&gt;vec = [(0, 1), (4, 1)]
+print tfidf[vec]
+corpus_tfidf = tfidf[corpus]
+for doc in corpus_tfidf:
+    print doc&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;[(0, 0.7071067811865475), (4, 0.7071067811865475)]
+[(0, 0.8425587958192721), (1, 0.3109633824035548), (2, 0.3109633824035548), (3, 0.3109633824035548)]
+[(2, 0.16073253746956623), (4, 0.4355066251613605), (5, 0.4355066251613605), (6, 0.4355066251613605), (7, 0.4355066251613605), (8, 0.4355066251613605), (9, 0.16073253746956623)]
+[(1, 0.1586956620869655), (3, 0.1586956620869655), (9, 0.1586956620869655), (10, 0.42998768831312806), (11, 0.42998768831312806), (12, 0.42998768831312806), (13, 0.42998768831312806), (14, 0.42998768831312806)]&lt;/p&gt;
+&lt;p&gt;vec是查询文本向量，比较vec和训练中的三句话相似度&lt;/p&gt;
+&lt;p&gt;index = similarities.SparseMatrixSimilarity(tfidf[corpus], num_features=14)
+sims = index[tfidf[vec]]
+print list(enumerate(sims))&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;[(0, 0.59577906), (1, 0.30794966), (2, 0.0)]&lt;/p&gt;
+&lt;p&gt;表示和第1句话相似度为59.578%，和第二句话的相似度位30.79%，第三句没有相似度，&lt;/p&gt;
+&lt;p&gt;我们看看vec这句话是什么：0为吃，4为东西，所以vec这句话可以是["吃东西"]或者["东西吃"]&lt;/p&gt;
+&lt;p&gt;而第一句话"我喜欢吃土豆","土豆是个百搭的东西"明显有相似度，而第三句话"我不喜欢今天雾霾的北京"，相似度几乎为0，至于为什么第一句比第二句更相似，就需要考虑TfIdf document representation和cosine similarity measure了&lt;/p&gt;
+&lt;p&gt;回到tfidf转换，接着训练LSI模型，假定三句话属于2个主题，&lt;/p&gt;
+&lt;p&gt;lsi = models.LsiModel(corpus_tfidf, id2word=dic, num_topics=2)
+lsiout=lsi.print_topics(2)
+print lsiout[0]
+print lsiout[1]&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;0.532&lt;em&gt;"吃" + 0.290&lt;/em&gt;"喜欢" + 0.290&lt;em&gt;"我" + 0.258&lt;/em&gt;"土豆" + 0.253&lt;em&gt;"霾" + 0.253&lt;/em&gt;"雾" + 0.253&lt;em&gt;"北京" + 0.253&lt;/em&gt;"今天" + 0.253&lt;em&gt;"不" + 0.166&lt;/em&gt;"东西"
+0.393&lt;em&gt;"百" + 0.393&lt;/em&gt;"搭" + 0.393&lt;em&gt;"东西" + 0.393&lt;/em&gt;"是" + 0.393&lt;em&gt;"个" + -0.184&lt;/em&gt;"霾" + -0.184&lt;em&gt;"雾" + -0.184&lt;/em&gt;"北京" + -0.184&lt;em&gt;"今天" + -0.184&lt;/em&gt;"不"&lt;/p&gt;
+&lt;p&gt;这就是基于SVD建立的两个主题模型内容&lt;/p&gt;
+&lt;p&gt;将文章投影到主题空间中&lt;/p&gt;
+&lt;p&gt;corpus_lsi = lsi[corpus_tfidf]
+for doc in corpus_lsi:
+    print doc&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;[(0, -0.70861576320682107), (1, 0.1431958007198823)]
+[(0, -0.42764142348481798), (1, -0.88527674470703799)]
+[(0, -0.66124862582594512), (1, 0.4190711252114323)]&lt;/p&gt;
+&lt;p&gt;因此第一三两句和主题一相似，第二句和主题二相似&lt;/p&gt;
+&lt;p&gt;同理做个LDA&lt;/p&gt;
+&lt;p&gt;lda = models.LdaModel(corpus_tfidf, id2word=dic, num_topics=2)
+ldaOut=lda.print_topics(2)
+print ldaOut[0]
+print ldaOut[1]
+corpus_lda = lda[corpus_tfidf]
+for doc in corpus_lda:
+    print doc&lt;/p&gt;
+&lt;p&gt;得到的结果每次都变，给一次的输出：&lt;/p&gt;
+&lt;p&gt;0.077&lt;em&gt;吃 + 0.075&lt;/em&gt;北京 + 0.075&lt;em&gt;雾 + 0.074&lt;/em&gt;今天 + 0.073&lt;em&gt;不 + 0.072&lt;/em&gt;霾 + 0.070&lt;em&gt;喜欢 + 0.068&lt;/em&gt;我 + 0.062&lt;em&gt;的 + 0.061&lt;/em&gt;土豆
+0.091&lt;em&gt;吃 + 0.073&lt;/em&gt;搭 + 0.073&lt;em&gt;土豆 + 0.073&lt;/em&gt;个 + 0.073&lt;em&gt;是 + 0.072&lt;/em&gt;百 + 0.071&lt;em&gt;东西 + 0.066&lt;/em&gt;我 + 0.065&lt;em&gt;喜欢 + 0.059&lt;/em&gt;霾
+[(0, 0.31271095988105352), (1, 0.68728904011894654)]
+[(0, 0.19957991735916861), (1, 0.80042008264083142)]
+[(0, 0.80940337254233863), (1, 0.19059662745766134)]&lt;/p&gt;
+&lt;p&gt;第一二句和主题二相似，第三句和主题一相似&lt;/p&gt;
+&lt;p&gt;结论和LSI不一样，我估计这和样本数目太少，区别度不高有关，毕竟让我来区分把第一句和哪一句分在一个主题，我也不确定&lt;/p&gt;
+&lt;p&gt;输入一句话，查询属于LSI得到的哪个主题类型，先建立索引：&lt;/p&gt;
+&lt;p&gt;index = similarities.MatrixSimilarity(lsi[corpus])
+query = "雾霾"
+query_bow = dic.doc2bow(list(jieba.cut(query)))
+print query_bow
+query_lsi = lsi[query_bow]
+print query_lsi&lt;/p&gt;
+&lt;p&gt;输出:&lt;/p&gt;
+&lt;p&gt;[(13, 1), (14, 1)]
+[(0, 0.50670602027401368), (1, -0.3678056037187441)]&lt;/p&gt;
+&lt;p&gt;与第一个主题相似&lt;/p&gt;
+&lt;p&gt;比较和第几句话相似，用LSI得到的索引接着做，并排序输出&lt;/p&gt;
+&lt;p&gt;sims = index[query_lsi]
+print list(enumerate(sims))
+sort_sims = sorted(enumerate(sims), key=lambda item: -item[1])
+print sort_sims&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;[(0, 0.90161765), (1, -0.10271341), (2, 0.99058259)]
+[(2, 0.99058259), (0, 0.90161765), (1, -0.10271341)]&lt;/p&gt;
+&lt;p&gt;可见和第二句话相似度很高，因为只有第二句话出现了雾霾两个词，可是惊讶的是和第一句话的相似度也很高，这得益于LSI模型的算法：在A和C共现，B和C共现的同时，可以找到A和B的相似度&lt;/p&gt;
+&lt;p&gt;在此感谢52nlp的好资源&lt;/p&gt;</summary><category term="gensim"></category><category term="Ubuntu"></category><category term="Python"></category></entry><entry><title>TF-IDF提取关键词并用余弦算法计算相似度</title><link href="/tf-idfti-qu-guan-jian-ci-bing-yong-yu-xian-suan-fa-ji-suan-xiang-si-du.html" rel="alternate"></link><updated>2014-01-23T17:09:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:tf-idfti-qu-guan-jian-ci-bing-yong-yu-xian-suan-fa-ji-suan-xiang-si-du.html</id><summary type="html">&lt;p&gt;TF-IDF算法是一个很易懂的关键词提取算法，算法易实现，易懂且易操作，缺陷是将词频作为唯一考虑因素，且对于位置没有敏感性，位置的问题可以通过人为添加权重的方式改善，比如给第一段最后一段，或者每一段的第一句话加高权重。。。（类似于总分，总分总啥的文本结构吧）&lt;/p&gt;
+&lt;p&gt;TF-IDF算法简单描述：&lt;/p&gt;
+&lt;p&gt;TF是Term Frequency的缩写，即单纯的计算词频，比如，两句话分别是“我最喜欢吃我做的土豆”，“我最喜欢海”，因为是简介，就不讲究完备性，不将这句话分词，只考虑每个字，那么，第一句话中，“我”出现了两次，其他的字各出现了一次，第二句中，所有的字都出现了一次，那么计算TF的时候，只用将每个字的出现次数除以总字数即可：&lt;/p&gt;
+&lt;p&gt;TF = 文章中出现次数/文章总词数&lt;/p&gt;
+&lt;p&gt;【我：0.2，最：0.1，喜：0.1，欢：0.1，吃：0.1，做：0.1，的：0.1，土：0.1，豆：0.1】&lt;/p&gt;
+&lt;p&gt;【我：0.2，最：0.2，喜：0.2，欢：0.2，海：0.2】&lt;/p&gt;
+&lt;p&gt;为了避免“我”，"最"等等stop word占权重太大，考虑将这种会出现在大部分文章中的字减小概率，这时候引用IDF（Inverse Document Frequency），就是一个如果含有该词的文档出现次数越多，值越小的公式&lt;/p&gt;
+&lt;p&gt;IDF = log(总文章数/含有该词的文章数)&lt;/p&gt;
+&lt;p&gt;为了避免出现除0的情况出现，一般会给分母+1，类似于laplace平滑意义：&lt;/p&gt;
+&lt;p&gt;IDF = log(总文章数/（含有该词的文章数+1）)&lt;/p&gt;
+&lt;p&gt;TF-IDF的值，就是将TF*IDF，然后排序，值高的词认为更有意义，作为代表性输出&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;余弦相似度是计算文档相似度的方法&lt;/p&gt;
+&lt;p&gt;参考http://blog.csdn.net/whzhcahzxh/article/details/17528261里面的实现&lt;/p&gt;
+&lt;p&gt;将一段话转换为语料库后，得到多维度向量，用a&lt;em&gt;b/(|a|&lt;/em&gt;|b|)计算余弦值，值越大两个向量越相似&lt;/p&gt;</summary><category term="文本挖掘"></category><category term="Python"></category><category term="TF-IDF"></category></entry></feed>

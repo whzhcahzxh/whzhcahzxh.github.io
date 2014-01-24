@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Brown Stone  
+Description: A two-column, fixed-width design with dark color scheme.
+Version    : 1.0
+Released   : 20100928
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>coreseek通过python读取mongoDB数据</title>
+<link href="/theme/css/style.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="/" type="application/atom+xml" rel="alternate" title="Hao's blog ATOM Feed" />
+</head>
+<body>
+<div id="wrapper">
+	<div id="page">
+		<div id="page-bgtop">
+			<div id="page-bgbtm">
+    
+                        	<div id="content">
+					<div class="post">
+						<h2 class="title"><a href="coreseektong-guo-pythondu-qu-mongodbshu-ju.html">coreseek通过python读取mongoDB数据</a></h2>
+						<p class="meta"><span class="date">Le 四 23 一月 2014 </span><span class="posted">Par <a href="#">HAO</a></span><span>&nbsp; | Catégorie : <a href="/category/coreseek.html">coreseek</a></span></p>
+					<p class="meta">Tags : <span><a href="/tag/coreseek.html">coreseek</a> / </span>
+<span><a href="/tag/ubuntu.html">Ubuntu</a> / </span>
+<span><a href="/tag/python.html">Python</a> / </span>
+<span><a href="/tag/mongodb.html">mongoDB</a> / </span>
+</p>	
+						<div style="clear: both;">&nbsp;</div>
+						<div class="entry">
+						 <p>coreseek的资料真少啊，不人性化</p>
+<p>官方内容一定要看，进行中...</p>
+<p>http://www.tapy.org/sphinx1.0/sphinx.html</p>
+<p>http://www.coreseek.cn/docs/coreseek_4.1-sphinx_2.0.1-beta.html</p>
+<p>mongoDB不是coreseek/sphinx支持的格式，因此我用python读入mongoDB数据，然后转成python数据源，用coreseek建立索引</p>
+<p>[python] view plaincopy在CODE上查看代码片派生到我的代码片</p>
+<h1>-<em>- coding:utf-8 -</em>-</h1>
+<h1>author: Hao</h1>
+<p>import pymongo<br />
+class MainSource(object):<br />
+    def <strong>init</strong>(self, conf):<br />
+        self.conf =  conf<br />
+        self.idx = 0         <br />
+        self.data=[]<br />
+        self.conn = None<br />
+        self.cur = None  </p>
+<div class="highlight"><pre><span class="n">def</span> <span class="n">GetScheme</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="o">:</span>  <span class="err">#获取结构，</span><span class="n">docid</span><span class="err">、文本、整数</span>  
+    <span class="k">return</span> <span class="p">[</span>  
+        <span class="p">(</span><span class="err">&#39;</span><span class="n">id</span><span class="err">&#39;</span> <span class="p">,</span> <span class="p">{</span><span class="err">&#39;</span><span class="n">docid</span><span class="err">&#39;</span><span class="o">:</span><span class="n">True</span><span class="p">,</span> <span class="p">}</span> <span class="p">),</span>  
+        <span class="p">(</span><span class="err">&#39;</span><span class="n">subject</span><span class="err">&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="err">&#39;</span><span class="n">type</span><span class="sc">&#39;:&#39;</span><span class="n">text</span><span class="err">&#39;</span><span class="p">}</span> <span class="p">),</span>  
+        <span class="p">(</span><span class="err">&#39;</span><span class="n">context</span><span class="err">&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="err">&#39;</span><span class="n">type</span><span class="sc">&#39;:&#39;</span><span class="n">text</span><span class="err">&#39;</span><span class="p">}</span> <span class="p">),</span>  
+        <span class="p">(</span><span class="err">&#39;</span><span class="n">published</span><span class="err">&#39;</span><span class="p">,</span> <span class="p">{</span><span class="err">&#39;</span><span class="n">type</span><span class="sc">&#39;:&#39;</span><span class="n">integer</span><span class="err">&#39;</span><span class="p">}</span> <span class="p">),</span>  
+        <span class="p">(</span><span class="err">&#39;</span><span class="n">author_id</span><span class="err">&#39;</span><span class="p">,</span> <span class="p">{</span><span class="err">&#39;</span><span class="n">type</span><span class="sc">&#39;:&#39;</span><span class="n">integer</span><span class="err">&#39;</span><span class="p">}</span> <span class="p">),</span>  
+    <span class="p">]</span>
+
+<span class="n">def</span> <span class="n">GetFieldOrder</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="o">:</span>  <span class="err">#选择被搜索字段，并决定字段的优先顺序</span>  
+    <span class="k">return</span> <span class="p">[(</span><span class="err">&#39;</span><span class="n">subject</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">context</span><span class="err">&#39;</span><span class="p">)]</span>
+
+<span class="n">def</span> <span class="n">Connected</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="o">:</span>   <span class="err">#如果是数据库，则在此处做数据库连接</span>  
+    <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">conn</span> <span class="o">==</span> <span class="n">None</span><span class="o">:</span>  
+        <span class="err">#读入数据库数据</span>  
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">pymongo</span><span class="p">.</span><span class="n">Connection</span><span class="p">(</span><span class="err">&#39;</span><span class="n">localhost</span><span class="err">&#39;</span><span class="p">,</span><span class="mi">27017</span><span class="p">)</span>  
+        <span class="n">db</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">test</span>  
+        <span class="n">dbCollection</span> <span class="o">=</span> <span class="n">db</span><span class="p">.</span><span class="n">database</span>
+
+        <span class="n">commentset</span><span class="o">=</span><span class="p">[]</span>  
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">dbCollection</span><span class="p">.</span><span class="n">find</span><span class="p">()</span>  
+        <span class="n">count</span><span class="o">=</span><span class="mi">0</span>  
+        <span class="k">for</span> <span class="n">commentPiece</span> <span class="n">in</span> <span class="n">cursor</span><span class="o">:</span>  
+            <span class="n">sentence</span> <span class="o">=</span> <span class="n">commentPiece</span><span class="p">[</span><span class="err">&#39;</span><span class="n">content</span><span class="err">&#39;</span><span class="p">]</span>  
+            <span class="n">commentset</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>  
+        <span class="k">for</span> <span class="n">i</span> <span class="n">in</span> <span class="n">range</span><span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="n">commentset</span><span class="p">))</span><span class="o">:</span>  
+            <span class="n">self</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">append</span><span class="p">({</span><span class="err">&#39;</span><span class="n">id</span><span class="err">&#39;</span><span class="o">:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">subject</span><span class="err">&#39;</span><span class="o">:</span><span class="n">u</span><span class="err">&#39;</span><span class="n">number</span><span class="err">&#39;</span><span class="o">+</span><span class="n">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="err">&#39;</span><span class="n">context</span><span class="err">&#39;</span><span class="o">:</span><span class="n">commentset</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="err">&#39;</span><span class="n">published</span><span class="err">&#39;</span><span class="o">:</span><span class="mo">00001</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">author_id</span><span class="err">&#39;</span><span class="o">:</span><span class="mi">1</span> <span class="p">})</span>  
+    <span class="n">pass</span>
+
+<span class="n">def</span> <span class="n">NextDocument</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="n">_</span><span class="p">)</span><span class="o">:</span>   <span class="err">#取得每一个文档记录的调用</span>  
+    <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">idx</span> <span class="o">&lt;</span> <span class="n">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">data</span><span class="p">)</span><span class="o">:</span>  
+        <span class="n">item</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">idx</span><span class="p">]</span>  
+        <span class="n">self</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="err">&#39;</span><span class="n">id</span><span class="err">&#39;</span><span class="p">]</span> <span class="err">#&#39;</span><span class="n">docid</span><span class="err">&#39;</span><span class="o">:</span><span class="n">True</span>  
+        <span class="n">self</span><span class="p">.</span><span class="n">subject</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="err">&#39;</span><span class="n">subject</span><span class="err">&#39;</span><span class="p">].</span><span class="n">encode</span><span class="p">(</span><span class="err">&#39;</span><span class="n">utf</span><span class="o">-</span><span class="mi">8</span><span class="err">&#39;</span><span class="p">)</span>  
+        <span class="n">self</span><span class="p">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="err">&#39;</span><span class="n">context</span><span class="err">&#39;</span><span class="p">].</span><span class="n">encode</span><span class="p">(</span><span class="err">&#39;</span><span class="n">utf</span><span class="o">-</span><span class="mi">8</span><span class="err">&#39;</span><span class="p">)</span>  
+        <span class="n">self</span><span class="p">.</span><span class="n">published</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="err">&#39;</span><span class="n">published</span><span class="err">&#39;</span><span class="p">]</span>  
+        <span class="n">self</span><span class="p">.</span><span class="n">author_id</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="err">&#39;</span><span class="n">author_id</span><span class="err">&#39;</span><span class="p">]</span>  
+        <span class="n">self</span><span class="p">.</span><span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>  
+        <span class="k">return</span> <span class="n">True</span>  
+    <span class="k">else</span><span class="o">:</span>  
+        <span class="k">return</span> <span class="n">False</span>
+</pre></div>
+
+
+<p>if <strong>name</strong> == "<strong>main</strong>":    #直接访问演示部分  </p>
+<div class="highlight"><pre><span class="n">conf</span> <span class="o">=</span> <span class="p">{}</span>  
+<span class="n">source</span> <span class="o">=</span> <span class="n">MainSource</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>  
+<span class="n">source</span><span class="p">.</span><span class="n">Connected</span><span class="p">()</span>
+
+<span class="k">while</span> <span class="n">source</span><span class="p">.</span><span class="n">NextDocument</span><span class="p">()</span><span class="o">:</span>  
+    <span class="n">print</span> <span class="s">&quot;id=%d, context=%s&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">source</span><span class="p">.</span><span class="n">id</span><span class="p">,</span> <span class="n">source</span><span class="p">.</span><span class="n">context</span><span class="p">)</span>  
+<span class="n">pass</span>
+</pre></div>
+
+
+<h1>eof</h1>
+<p>刚刚一直无法将文件的id设置成功，一开始怀疑是</p>
+<p>[python] view plaincopy在CODE上查看代码片派生到我的代码片
+'id' , {'docid':True, }<br />
+的格式要求不对，后来发现这个好像是固定写法，根据他人的格式，这种写法，docid完全可以是1、2、3、4、5...</p>
+<p>纠结啊，网上找不到资料，所以试出来之后写个blog给大家</p>
+<p>[python] view plaincopy在CODE上查看代码片派生到我的代码片
+self.data.append({'id':i<span style="background-color: rgb(102, 255, 255);"><span style="color:#FF0000;">+1</span></span>, 'subject':u'number'+str(i),'context':commentset[i], 'published':00001, 'author_id':1 })<br />
+出现问题的原因是因为，docid必须是非零正整数，这里 i in range（）是从0开始的计数，所以，一直是报错状态</p>
+<p>另外，一开始试图将mongoDB的数据放在__init__方法中，失败了，还以为是必须要放在Connected这个方法内，事实证明，也是因为id从0开始报错的原因。如果不嫌丑陋，</p>
+<p>[python] view plaincopy在CODE上查看代码片派生到我的代码片</p>
+<h1>读入数据库数据</h1>
+<div class="highlight"><pre>       <span class="n">conn</span> <span class="o">=</span> <span class="n">pymongo</span><span class="p">.</span><span class="n">Connection</span><span class="p">(</span><span class="err">&#39;</span><span class="n">localhost</span><span class="err">&#39;</span><span class="p">,</span><span class="mi">27017</span><span class="p">)</span>  
+       <span class="n">db</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">test</span>  
+       <span class="n">dbCollection</span> <span class="o">=</span> <span class="n">db</span><span class="p">.</span><span class="n">database</span>
+
+       <span class="n">commentset</span><span class="o">=</span><span class="p">[]</span>  
+       <span class="n">cursor</span> <span class="o">=</span> <span class="n">dbCollection</span><span class="p">.</span><span class="n">find</span><span class="p">()</span>  
+       <span class="n">count</span><span class="o">=</span><span class="mi">0</span>  
+       <span class="k">for</span> <span class="n">commentPiece</span> <span class="n">in</span> <span class="n">cursor</span><span class="o">:</span>  
+           <span class="n">sentence</span> <span class="o">=</span> <span class="n">commentPiece</span><span class="p">[</span><span class="err">&#39;</span><span class="n">content</span><span class="err">&#39;</span><span class="p">]</span>  
+           <span class="n">commentset</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>  
+       <span class="k">for</span> <span class="n">i</span> <span class="n">in</span> <span class="n">range</span><span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="n">commentset</span><span class="p">))</span><span class="o">:</span>  
+           <span class="n">self</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">append</span><span class="p">({</span><span class="err">&#39;</span><span class="n">id</span><span class="err">&#39;</span><span class="o">:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">subject</span><span class="err">&#39;</span><span class="o">:</span><span class="n">u</span><span class="err">&#39;</span><span class="n">number</span><span class="err">&#39;</span><span class="o">+</span><span class="n">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="err">&#39;</span><span class="n">context</span><span class="err">&#39;</span><span class="o">:</span><span class="n">commentset</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="err">&#39;</span><span class="n">published</span><span class="err">&#39;</span><span class="o">:</span><span class="mo">00001</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">author_id</span><span class="err">&#39;</span><span class="o">:</span><span class="mi">1</span> <span class="p">})</span>
+</pre></div>
+
+
+<p>这一段可以放在__init__方法中</p>
+<p>继续探索，good luck to you and me</p>	
+						</div>
+					</div>
+			      
+					<div style="clear: both;">&nbsp;</div>
+                                        <div class="post">
+                                        <h2 class="title">Commentaires !</h2>
+                                            <div id="disqus_thread"></div>
+                                            <script type="text/javascript">
+                                               var disqus_identifier = "coreseektong-guo-pythondu-qu-mongodbshu-ju.html";
+                                               (function() {
+                                               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                                               dsq.src = 'http://whzhcahzxh.disqus.com.disqus.com/embed.js';
+                                               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                                              })();
+                                            </script>
+                                        </div>
+				</div>
+				<!-- end #content -->
+				<div id="sidebar">
+					<div id="logo">
+						<h1><a href="">Hao's blog</h1>
+					</div>
+					<div id="menu">
+						<ul>
+							<li class="current_page_item"><a href="">Home</a></li>
+							<li><a href="/archives.html">Archives</a></li>
+						</ul>
+					</div>
+					<ul>
+						<li>
+							<h2>Catégories</h2>
+							<ul>
+								 <li class="active"><a href="/category/coreseek.html">coreseek</a></li>
+								 <li ><a href="/category/github.html">github</a></li>
+								 <li ><a href="/category/sheng-huo.html">生活</a></li>
+								 <li ><a href="/category/suan-fa.html">算法</a></li>
+								 <li ><a href="/category/wen-ben-wa-jue.html">文本挖掘</a></li>
+							</ul>
+						</li>
+						<li>
+							<h2>Blogroll</h2>
+							<ul>
+                                                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                                                            <li><a href="http://python.org/">Python.org</a></li>
+                                                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                                                            <li><a href="#">You can modify those links in your config file</a></li>
+							</ul>
+						</li>
+                                                <li>
+                                                        <h2>Social</h2>
+                                                        <ul>
+                                                            <li><a href="/" rel="alternate">Flux Atom</a></li>
+                                                            <li><a href="http://blog.csdn.net/whzhcahzxh">原csdn_link</a></li>
+                                                            <li><a href="http://weibo.com/itgeeks">我的微博_link</a></li>
+                                                            <li><a href="http://weibo.com/itproduct">新产品平台微博_link</a></li>
+                                                        </ul>
+                                                </li><!-- /.social -->
+						<li>
+						        <h2>Tags</h2>
+						        <ul>
+                                                                <li><a href="/tag/coreseek.html">coreseek</a></li>
+                                                                <li><a href="/tag/suan-fa.html">算法</a></li>
+                                                                <li><a href="/tag/github.html">github</a></li>
+                                                                <li><a href="/tag/start-2013.html">start， 2013</a></li>
+                                                                <li><a href="/tag/python.html">Python</a></li>
+                                                                <li><a href="/tag/mongodb.html">mongoDB</a></li>
+                                                                <li><a href="/tag/tf-idf.html">TF-IDF</a></li>
+                                                                <li><a href="/tag/shu-ling.html">舒凌</a></li>
+                                                                <li><a href="/tag/wen-ben-wa-jue.html">文本挖掘</a></li>
+                                                                <li><a href="/tag/r.html">R</a></li>
+                                                                <li><a href="/tag/ubuntu.html">Ubuntu</a></li>
+                                                                <li><a href="/tag/gensim.html">gensim</a></li>
+						        </ul>
+						</li>
+						
+						
+					</ul>
+				</div>
+				<!-- end #sidebar -->
+				<div style="clear: both;">&nbsp;</div>
+			</div>
+		</div>
+	</div>
+	<!-- end #page -->
+
+<div id="footer">
+	<p>Copyright (c) 2008 Sitename.com. All rights reserved. Design by <a href="http://www.freecsstemplates.org/">CSS Templates</a>.</p>
+	<p>Proudly powered by <a href="http://alexis.notmyidea.org/pelican/">pelican</a>, which takes great advantages of <a href="http://python.org">python</a>.
+</p>
+</div>
+    <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+    try {
+        var pageTracker = _gat._getTracker("UA-47448544-1");
+    pageTracker._trackPageview();
+    } catch(err) {}</script>
+<!-- end #footer -->
+</body>
+</html>

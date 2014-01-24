@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Brown Stone  
+Description: A two-column, fixed-width design with dark color scheme.
+Version    : 1.0
+Released   : 20100928
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>用github写blog</title>
+<link href="/theme/css/style.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="/" type="application/atom+xml" rel="alternate" title="Hao's blog ATOM Feed" />
+</head>
+<body>
+<div id="wrapper">
+	<div id="page">
+		<div id="page-bgtop">
+			<div id="page-bgbtm">
+    
+                        	<div id="content">
+					<div class="post">
+						<h2 class="title"><a href="yong-githubxie-blog.html">用github写blog</a></h2>
+						<p class="meta"><span class="date">Le 四 23 一月 2014 </span><span class="posted">Par <a href="#">HAO</a></span><span>&nbsp; | Catégorie : <a href="/category/github.html">github</a></span></p>
+					<p class="meta">Tags : <span><a href="/tag/github.html">github</a> / </span>
+</p>	
+						<div style="clear: both;">&nbsp;</div>
+						<div class="entry">
+						 <p>因为用python，不会ruby的原因，我采用的是pelican这个python的框架</p>
+<p>安装好github客户端之后，配置pelican和markdown</p>
+<p>pip install pelican
+pip install Markdown</p>
+<p>在ubuntu，安装了retext来编辑markdown</p>
+<p>在git的文件夹下我新建了一个blog的文件夹，cd进入后，执行</p>
+<p>pelican-quickstart
+会需要选择一些配置项，按需选择
+配置完成后，在文件夹下出现了几个子目录，进入content，编辑一个markdown文档，我新建了一个a.md
+内容是：
+Date: 2014-01-23
+Title: test
+Tags: test
+Category: Test
+Slug: love shuling
+【blog正文内容】</p>
+<p>就差最后一步了，希望宝贝的年会开心</p>
+<p>保存退出后，cd ..回到上级目录
+执行make html得到输出，（一定在上级目录执行，我一开始在content下执行，发现make一直无法通过，也没有看到相关资料，后来自己试通的）</p>
+<p>在output文件夹   cd output/
+git init
+在我的github下生成一个repository，叫   whzhcahzxh.github.io</p>
+<p>git remote add origin https://github.com/whzhcahzxh/whzhcahzxh.github.io.git</p>
+<p>git add .
+git commit -m "commit"</p>
+<p>git push origin master</p>
+<p>然后，就可以了，到github的这个仓库下，看右边的setting，github page有这么一行</p>
+<p>GitHub Pages
+Changes may take up to ten minutes to be visible.</p>
+<p>Your site is published at http://whzhcahzxh.github.io</p>
+<p>点击进去就好了，这个就是链接了</p>	
+						</div>
+					</div>
+			      
+					<div style="clear: both;">&nbsp;</div>
+                                        <div class="post">
+                                        <h2 class="title">Commentaires !</h2>
+                                            <div id="disqus_thread"></div>
+                                            <script type="text/javascript">
+                                               var disqus_identifier = "yong-githubxie-blog.html";
+                                               (function() {
+                                               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                                               dsq.src = 'http://whzhcahzxh.disqus.com.disqus.com/embed.js';
+                                               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                                              })();
+                                            </script>
+                                        </div>
+				</div>
+				<!-- end #content -->
+				<div id="sidebar">
+					<div id="logo">
+						<h1><a href="">Hao's blog</h1>
+					</div>
+					<div id="menu">
+						<ul>
+							<li class="current_page_item"><a href="">Home</a></li>
+							<li><a href="/archives.html">Archives</a></li>
+						</ul>
+					</div>
+					<ul>
+						<li>
+							<h2>Catégories</h2>
+							<ul>
+								 <li ><a href="/category/coreseek.html">coreseek</a></li>
+								 <li class="active"><a href="/category/github.html">github</a></li>
+								 <li ><a href="/category/sheng-huo.html">生活</a></li>
+								 <li ><a href="/category/suan-fa.html">算法</a></li>
+								 <li ><a href="/category/wen-ben-wa-jue.html">文本挖掘</a></li>
+							</ul>
+						</li>
+						<li>
+							<h2>Blogroll</h2>
+							<ul>
+                                                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                                                            <li><a href="http://python.org/">Python.org</a></li>
+                                                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                                                            <li><a href="#">You can modify those links in your config file</a></li>
+							</ul>
+						</li>
+                                                <li>
+                                                        <h2>Social</h2>
+                                                        <ul>
+                                                            <li><a href="/" rel="alternate">Flux Atom</a></li>
+                                                            <li><a href="http://blog.csdn.net/whzhcahzxh">原csdn_link</a></li>
+                                                            <li><a href="http://weibo.com/itgeeks">我的微博_link</a></li>
+                                                            <li><a href="http://weibo.com/itproduct">新产品平台微博_link</a></li>
+                                                        </ul>
+                                                </li><!-- /.social -->
+						<li>
+						        <h2>Tags</h2>
+						        <ul>
+                                                                <li><a href="/tag/coreseek.html">coreseek</a></li>
+                                                                <li><a href="/tag/suan-fa.html">算法</a></li>
+                                                                <li><a href="/tag/github.html">github</a></li>
+                                                                <li><a href="/tag/start-2013.html">start， 2013</a></li>
+                                                                <li><a href="/tag/python.html">Python</a></li>
+                                                                <li><a href="/tag/mongodb.html">mongoDB</a></li>
+                                                                <li><a href="/tag/tf-idf.html">TF-IDF</a></li>
+                                                                <li><a href="/tag/shu-ling.html">舒凌</a></li>
+                                                                <li><a href="/tag/wen-ben-wa-jue.html">文本挖掘</a></li>
+                                                                <li><a href="/tag/r.html">R</a></li>
+                                                                <li><a href="/tag/ubuntu.html">Ubuntu</a></li>
+                                                                <li><a href="/tag/gensim.html">gensim</a></li>
+						        </ul>
+						</li>
+						
+						
+					</ul>
+				</div>
+				<!-- end #sidebar -->
+				<div style="clear: both;">&nbsp;</div>
+			</div>
+		</div>
+	</div>
+	<!-- end #page -->
+
+<div id="footer">
+	<p>Copyright (c) 2008 Sitename.com. All rights reserved. Design by <a href="http://www.freecsstemplates.org/">CSS Templates</a>.</p>
+	<p>Proudly powered by <a href="http://alexis.notmyidea.org/pelican/">pelican</a>, which takes great advantages of <a href="http://python.org">python</a>.
+</p>
+</div>
+    <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+    try {
+        var pageTracker = _gat._getTracker("UA-47448544-1");
+    pageTracker._trackPageview();
+    } catch(err) {}</script>
+<!-- end #footer -->
+</body>
+</html>

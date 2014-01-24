@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Brown Stone  
+Description: A two-column, fixed-width design with dark color scheme.
+Version    : 1.0
+Released   : 20100928
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>coreseek搭配使用python源</title>
+<link href="/theme/css/style.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="/" type="application/atom+xml" rel="alternate" title="Hao's blog ATOM Feed" />
+</head>
+<body>
+<div id="wrapper">
+	<div id="page">
+		<div id="page-bgtop">
+			<div id="page-bgbtm">
+    
+                        	<div id="content">
+					<div class="post">
+						<h2 class="title"><a href="coreseekda-pei-shi-yong-pythonyuan.html">coreseek搭配使用python源</a></h2>
+						<p class="meta"><span class="date">Le 四 23 一月 2014 </span><span class="posted">Par <a href="#">HAO</a></span><span>&nbsp; | Catégorie : <a href="/category/coreseek.html">coreseek</a></span></p>
+					<p class="meta">Tags : <span><a href="/tag/coreseek.html">coreseek</a> / </span>
+<span><a href="/tag/ubuntu.html">Ubuntu</a> / </span>
+<span><a href="/tag/python.html">Python</a> / </span>
+</p>	
+						<div style="clear: both;">&nbsp;</div>
+						<div class="entry">
+						 <p>网络资料真少啊，官方给的文档还算详细，但是没有交流就没有成功，开源的意义</p>
+<p>Ubuntu环境下使用：</p>
+<p>不知道为啥，搭配好环境后，原本在cmd栏下直接运行python的脚本命令找不到了，只能用运行python2.7来执行相同操作，求解</p>
+<p>下载的coreseek自己提供的测试数据和conf文件，配置主要是将 path = /usr/bin/python2设定为电脑装有python可执行程序的位置，我的机器位置如上</p>
+<p>python路径定义提供的是python源的位置，脚本的位置</p>
+<p>源定义基本不用改，在python文件中采用相同格式即可</p>
+<p>csft_demo_python.conf内容:</p>
+<h1>python路径定义</h1>
+<p _="
+" _usr_local_coreseek_etc_pysource="/usr/local/coreseek/etc/pysource" _usr_local_coreseek_etc_pysource_csft_demo="/usr/local/coreseek/etc/pysource/csft_demo" etc_pysource="etc/pysource" etc_pysource_csft_demo="etc/pysource/csft_demo" id="Windows环境下设置，最好给出绝对路径" path="path">python </p>
+<h1>源定义</h1>
+<p>source python 
+{ 
+    type = python 
+    name = csft_demo.MainSource #对应etc/pysource/csft_demo/<strong>init</strong>.py中的MainSource<br />
+} </p>
+<h1>index定义</h1>
+<p 0="0" 1="1" _="
+" _usr_bin_python2="/usr/bin/python2" _usr_local_mmseg3_etc_="/usr/local/mmseg3/etc/" charset_dictpath="charset_dictpath" charset_type="charset_type" docinfo="docinfo" etc_="etc/" extern="extern" html_strip="html_strip" id="Windows环境下设置，/符号结尾" min_word_len="min_word_len" mlock="mlock" morphology="morphology" none="none" path="path" python="python" source="source" zh_cn.utf-8="zh_cn.utf-8">index python </p>
+<p><strong>init</strong>.py内容:</p>
+<h1>-<em>- coding:utf-8 -</em>-</h1>
+<h1>coreseek3.2 python source演示</h1>
+<h1>author: HonestQiao</h1>
+<h1>date: 2010-06-03 11:46</h1>
+<p>class MainSource(object): 
+    def <strong>init</strong>(self, conf): 
+        self.conf =  conf 
+        self.idx = 0 
+        self.data = [ 
+            {'id':1, 'subject':u'国土部：5千万亩耕地中重度污染 不能再耕种', 'context':u'原标题：王世元: 中重度污染耕地5000万亩 每年将投数百亿治理修复新华网北京12月30日电（记者 陶叶）30日上午，国务院新闻办公室举行新闻发布会，请国土资源部副部长、国务院第二次全国土地调查领导小组办公室主任王世元和国家统计局副局长张为民等介绍第二次全国土地调查主要数据成果。', 'published':1270131607, 'author_id':1},
+            {'id':2, 'subject':u'Twitter主页改版 推普通用户消息增加趋势话题', 'context':u'4月1日消息，据国外媒体报道，Twitter本周二推出新版主页，目的很简单：帮助新用户了解Twitter和增加用户黏稠度。', 'published':1270135548, 'author_id':1},
+            {'id':3, 'subject':u'张艺谋超生游击队', 'context':u'Opera一直都被认为是浏览速度飞快，同时在移动平台上更是占有不少的份额。', 'published':1270094460, 'author_id':2},
+        ] </p>
+<div class="highlight"><pre><span class="n">def</span> <span class="n">GetScheme</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="o">:</span>  <span class="err">#获取结构，</span><span class="n">docid</span><span class="err">、文本、整数</span> 
+    <span class="k">return</span> <span class="p">[</span> 
+        <span class="p">(</span><span class="err">&#39;</span><span class="n">id</span><span class="err">&#39;</span> <span class="p">,</span> <span class="p">{</span><span class="err">&#39;</span><span class="n">docid</span><span class="err">&#39;</span><span class="o">:</span><span class="n">True</span><span class="p">,</span> <span class="p">}</span> <span class="p">),</span> 
+        <span class="p">(</span><span class="err">&#39;</span><span class="n">subject</span><span class="err">&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="err">&#39;</span><span class="n">type</span><span class="sc">&#39;:&#39;</span><span class="n">text</span><span class="err">&#39;</span><span class="p">}</span> <span class="p">),</span> 
+        <span class="p">(</span><span class="err">&#39;</span><span class="n">context</span><span class="err">&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="err">&#39;</span><span class="n">type</span><span class="sc">&#39;:&#39;</span><span class="n">text</span><span class="err">&#39;</span><span class="p">}</span> <span class="p">),</span> 
+        <span class="p">(</span><span class="err">&#39;</span><span class="n">published</span><span class="err">&#39;</span><span class="p">,</span> <span class="p">{</span><span class="err">&#39;</span><span class="n">type</span><span class="sc">&#39;:&#39;</span><span class="n">integer</span><span class="err">&#39;</span><span class="p">}</span> <span class="p">),</span> 
+        <span class="p">(</span><span class="err">&#39;</span><span class="n">author_id</span><span class="err">&#39;</span><span class="p">,</span> <span class="p">{</span><span class="err">&#39;</span><span class="n">type</span><span class="sc">&#39;:&#39;</span><span class="n">integer</span><span class="err">&#39;</span><span class="p">}</span> <span class="p">),</span> 
+    <span class="p">]</span>
+
+<span class="n">def</span> <span class="n">GetFieldOrder</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="o">:</span> <span class="err">#字段的优先顺序</span> 
+    <span class="k">return</span> <span class="p">[(</span><span class="err">&#39;</span><span class="n">subject</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">context</span><span class="err">&#39;</span><span class="p">)]</span>
+
+<span class="n">def</span> <span class="n">Connected</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="o">:</span>   <span class="err">#如果是数据库，则在此处做数据库连接</span> 
+    <span class="n">pass</span>
+</pre></div>
+
+
+<h1>源码中的输入参数只有一个，但是我的机器报错，说需要输入一个，但是提供了两个，因为coreseek的不透明，我就直接在这里加了一个_，没有问题</h1>
+<div class="highlight"><pre><span class="n">def</span> <span class="n">NextDocument</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="n">_</span><span class="p">)</span><span class="o">:</span>   <span class="err">#取得每一个文档记录的调用</span> 
+    <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">idx</span> <span class="o">&lt;</span> <span class="n">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">data</span><span class="p">)</span><span class="o">:</span> 
+        <span class="n">item</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">idx</span><span class="p">]</span> 
+        <span class="n">self</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="err">&#39;</span><span class="n">id</span><span class="err">&#39;</span><span class="p">]</span> <span class="err">#&#39;</span><span class="n">docid</span><span class="err">&#39;</span><span class="o">:</span><span class="n">True</span> 
+        <span class="n">self</span><span class="p">.</span><span class="n">subject</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="err">&#39;</span><span class="n">subject</span><span class="err">&#39;</span><span class="p">].</span><span class="n">encode</span><span class="p">(</span><span class="err">&#39;</span><span class="n">utf</span><span class="o">-</span><span class="mi">8</span><span class="err">&#39;</span><span class="p">)</span> 
+        <span class="n">self</span><span class="p">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="err">&#39;</span><span class="n">context</span><span class="err">&#39;</span><span class="p">].</span><span class="n">encode</span><span class="p">(</span><span class="err">&#39;</span><span class="n">utf</span><span class="o">-</span><span class="mi">8</span><span class="err">&#39;</span><span class="p">)</span> 
+        <span class="n">self</span><span class="p">.</span><span class="n">published</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="err">&#39;</span><span class="n">published</span><span class="err">&#39;</span><span class="p">]</span> 
+        <span class="n">self</span><span class="p">.</span><span class="n">author_id</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="err">&#39;</span><span class="n">author_id</span><span class="err">&#39;</span><span class="p">]</span> 
+        <span class="n">self</span><span class="p">.</span><span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span> 
+        <span class="k">return</span> <span class="n">True</span> 
+    <span class="k">else</span><span class="o">:</span> 
+        <span class="k">return</span> <span class="n">False</span>
+</pre></div>
+
+
+<p>if <strong>name</strong> == "<strong>main</strong>":    #直接访问演示部分 
+    conf = {} 
+    source = MainSource(conf) 
+    source.Connected() </p>
+<div class="highlight"><pre><span class="k">while</span> <span class="n">source</span><span class="p">.</span><span class="n">NextDocument</span><span class="p">()</span><span class="o">:</span> 
+    <span class="n">print</span> <span class="s">&quot;id=%d, subject=%s&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">source</span><span class="p">.</span><span class="n">id</span><span class="p">,</span> <span class="n">source</span><span class="p">.</span><span class="n">subject</span><span class="p">)</span> 
+<span class="n">pass</span>
+</pre></div>
+
+
+<h1>eof</h1>	
+						</div>
+					</div>
+			      
+					<div style="clear: both;">&nbsp;</div>
+                                        <div class="post">
+                                        <h2 class="title">Commentaires !</h2>
+                                            <div id="disqus_thread"></div>
+                                            <script type="text/javascript">
+                                               var disqus_identifier = "coreseekda-pei-shi-yong-pythonyuan.html";
+                                               (function() {
+                                               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                                               dsq.src = 'http://whzhcahzxh.disqus.com.disqus.com/embed.js';
+                                               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                                              })();
+                                            </script>
+                                        </div>
+				</div>
+				<!-- end #content -->
+				<div id="sidebar">
+					<div id="logo">
+						<h1><a href="">Hao's blog</h1>
+					</div>
+					<div id="menu">
+						<ul>
+							<li class="current_page_item"><a href="">Home</a></li>
+							<li><a href="/archives.html">Archives</a></li>
+						</ul>
+					</div>
+					<ul>
+						<li>
+							<h2>Catégories</h2>
+							<ul>
+								 <li class="active"><a href="/category/coreseek.html">coreseek</a></li>
+								 <li ><a href="/category/github.html">github</a></li>
+								 <li ><a href="/category/sheng-huo.html">生活</a></li>
+								 <li ><a href="/category/suan-fa.html">算法</a></li>
+								 <li ><a href="/category/wen-ben-wa-jue.html">文本挖掘</a></li>
+							</ul>
+						</li>
+						<li>
+							<h2>Blogroll</h2>
+							<ul>
+                                                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                                                            <li><a href="http://python.org/">Python.org</a></li>
+                                                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                                                            <li><a href="#">You can modify those links in your config file</a></li>
+							</ul>
+						</li>
+                                                <li>
+                                                        <h2>Social</h2>
+                                                        <ul>
+                                                            <li><a href="/" rel="alternate">Flux Atom</a></li>
+                                                            <li><a href="http://blog.csdn.net/whzhcahzxh">原csdn_link</a></li>
+                                                            <li><a href="http://weibo.com/itgeeks">我的微博_link</a></li>
+                                                            <li><a href="http://weibo.com/itproduct">新产品平台微博_link</a></li>
+                                                        </ul>
+                                                </li><!-- /.social -->
+						<li>
+						        <h2>Tags</h2>
+						        <ul>
+                                                                <li><a href="/tag/coreseek.html">coreseek</a></li>
+                                                                <li><a href="/tag/suan-fa.html">算法</a></li>
+                                                                <li><a href="/tag/github.html">github</a></li>
+                                                                <li><a href="/tag/start-2013.html">start， 2013</a></li>
+                                                                <li><a href="/tag/python.html">Python</a></li>
+                                                                <li><a href="/tag/mongodb.html">mongoDB</a></li>
+                                                                <li><a href="/tag/tf-idf.html">TF-IDF</a></li>
+                                                                <li><a href="/tag/shu-ling.html">舒凌</a></li>
+                                                                <li><a href="/tag/wen-ben-wa-jue.html">文本挖掘</a></li>
+                                                                <li><a href="/tag/r.html">R</a></li>
+                                                                <li><a href="/tag/ubuntu.html">Ubuntu</a></li>
+                                                                <li><a href="/tag/gensim.html">gensim</a></li>
+						        </ul>
+						</li>
+						
+						
+					</ul>
+				</div>
+				<!-- end #sidebar -->
+				<div style="clear: both;">&nbsp;</div>
+			</div>
+		</div>
+	</div>
+	<!-- end #page -->
+
+<div id="footer">
+	<p>Copyright (c) 2008 Sitename.com. All rights reserved. Design by <a href="http://www.freecsstemplates.org/">CSS Templates</a>.</p>
+	<p>Proudly powered by <a href="http://alexis.notmyidea.org/pelican/">pelican</a>, which takes great advantages of <a href="http://python.org">python</a>.
+</p>
+</div>
+    <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+    try {
+        var pageTracker = _gat._getTracker("UA-47448544-1");
+    pageTracker._trackPageview();
+    } catch(err) {}</script>
+<!-- end #footer -->
+</body>
+</html>

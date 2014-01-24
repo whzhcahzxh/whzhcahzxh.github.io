@@ -1,0 +1,664 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Hao's blog</title><link href="/" rel="alternate"></link><link href="/feeds/all.atom.xml" rel="self"></link><id>/</id><updated>2014-01-23T17:17:00+08:00</updated><entry><title>部分智能推荐算法总结</title><link href="/bu-fen-zhi-neng-tui-jian-suan-fa-zong-jie.html" rel="alternate"></link><updated>2014-01-23T17:17:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:bu-fen-zhi-neng-tui-jian-suan-fa-zong-jie.html</id><summary type="html">&lt;p&gt;简介
+目前存在的推荐系统主要分为两种：
+1.基于内容的推荐系统
+方式：通过分析单个用户或资源的原始信息来进行推荐；
+优点：对于稀疏性有一定的抵抗能力；
+缺点：只能发现与已有兴趣相似的资源，难以挖掘新的感兴趣资源；
+2.基于协同过滤的推荐系统
+方式：基于历史上多个用户的访问信息对用户群体的喜好进行分析最后推荐使用者可能感兴趣的资源；
+优点：能有效挖掘出新的感兴趣的资源，且无需考虑资源的表示形式；
+缺点：对于稀疏性高的数据，系统性能会大大降低；&lt;/p&gt;
+&lt;p&gt;图模型
+大多数的推荐算法都面临数据稀疏性问题，图模型的算法能明显的改进稀疏性问题、提高推荐准确度。&lt;/p&gt;
+&lt;p&gt;图模型：&lt;/p&gt;
+&lt;p&gt;(图有小问题，表达意思即可)&lt;/p&gt;
+&lt;p&gt;图模型的构造：&lt;/p&gt;
+&lt;p&gt;用户对资源进行评分行为可以看作一种联系，表达了用户对资源的偏好。&lt;/p&gt;
+&lt;p&gt;对这种联系建立模型，把用户和资源表示成图中的点，如果用户使用过某资源，则在该用户和资源之间连边，把评分作为边的权值。&lt;/p&gt;
+&lt;p&gt;加入用户的背景信息：
+  用户背景信息是很强的社会信息，用户的背景能够决定用户对信息资源的需求。背景信息相同的人可能对资源有相似的偏好。&lt;/p&gt;
+&lt;p&gt;计算：
+  使用带重启机制的随机游走算法（Random Walk with Restart)，计算一个用户到其他所有用户的相关度。&lt;/p&gt;
+&lt;p&gt;RWR算法：算法从图中某个顶点出发，沿图中的边随机游走。在任意点上，算法以一定的概率随机地选择与该顶点相邻的边，沿这条边移动到下一个顶点，或以一定的概率直接回到出发点。对于一个非周期不可约的图，经过若干次随机游走过程，到达图中每一个顶点的概率值达到平稳分布，再次迭代也不改变图中的概率分布值。此时，图中每个点的概率值可以看作该顶点与出发点的联系紧密程度。&lt;/p&gt;
+&lt;p&gt;推荐计算过程：&lt;/p&gt;
+&lt;p&gt;1.把需要得到推荐的用户顶点作为出发顶点;&lt;/p&gt;
+&lt;p&gt;2.在RWR迭代收敛之后，稳定概率值越大的顶点，与目标顶点联系越密切，越应该作为推荐项目。&lt;/p&gt;
+&lt;p&gt;3.对得到的稳定概率值进行排序后，排除用户已经看过的资源，把概率值最大的前k个资源作为推荐集合。&lt;/p&gt;
+&lt;p&gt;矩阵分解
+矩阵分解的思路是把评分矩阵通过分解，用一个低秩的矩阵来逼近原来的评分矩阵。&lt;/p&gt;
+&lt;p&gt;对原来的庞大的常常又非常稀疏的矩阵进行降维和分解，而分解后得到的矩阵都是稠密矩阵。&lt;/p&gt;
+&lt;p&gt;v优点：
+Ø比较容易编程实现
+Ø比较低的时间和空间复杂度
+Ø预测的精度比较高
+Ø非常好的扩展性&lt;/p&gt;
+&lt;p&gt;缺点:
+Ø推荐的结果不具有很好的可解释性。
+Ø付出的空间代价太大。&lt;/p&gt;
+&lt;p&gt;几种矩阵分解方法：
+1.PureSvd(简易)
+•直接对用户评分矩阵R做SVD分解成两个矩阵，未知值填充0；
+2.LatentFactor Model(学术界主流)
+•实现满足一定约束条件的矩阵分解，需要构造一个优化问题；
+3.NMF
+•用于非负的值才有意义的情况，因为上面两个方法都有负值出现；&lt;/p&gt;
+&lt;p&gt;Topic model
+Topicmodel(主题模型)
+其实网易的算法可以算是主题模型的一种简易展现。&lt;/p&gt;
+&lt;p&gt;1.形成一个用户兴趣向量，通过记录用户的点击，来分析用户对某主题新闻的兴趣，考虑时间段流行度的加权；&lt;/p&gt;
+&lt;p&gt;2.用K-means方法对目标用户推荐；
+在主题模型中，主题表示一个概念、一个方面，表现为一系列相关的单词，是这些单词的条件概率。&lt;/p&gt;
+&lt;p&gt;通俗来说，一个主题就好像一个“桶”，它装了若干出现概率较高的词语，这些词语和这个主题有很强的相关性。&lt;/p&gt;
+&lt;p&gt;对于一段话来说，有些词语可以出自这个“桶”，有些可能来自那个“桶”，一段文本往往是若干个主题的杂合体。我们举个简单的例子，见下图：&lt;/p&gt;
+&lt;p&gt;readable
+normally 
+主题模型(topicmodel)可以无监督地对文档和词进行分类。主题模型训练推理有两种：&lt;/p&gt;
+&lt;p&gt;1.LDA&lt;/p&gt;
+&lt;p&gt;2.pLSA
+LDA可以将一篇文档用多个主题以概率形式组成，pLSA只有一个主题&lt;/p&gt;
+&lt;p&gt;增强学习
+增强学习原理：&lt;/p&gt;
+&lt;p&gt;Agent通过接收每一个状态下的响应评估来做一个较合理的行为，设定一个回报函数，目标就是最大化回报的和。&lt;/p&gt;
+&lt;p&gt;对于控制决策问题，有这么一种解决思路。我们设计一个回报函数（reward function），如果learning agent在决定一步后，获得了较好的结果，那么我们给agent一些回报（比如回报函数结果为正），得到较差的结果，那么回报函数为负。
+比如，四足机器人，如果他向前走了一步（接近目标），那么回报函数为正，后退为负。如果我们能够对每一步进行评价，得到相应的回报函数，那么就好办了，我们只需要找到一条回报值最大的路径（每步的回报之和最大），就认为是最佳的路径。&lt;/p&gt;
+&lt;p&gt;增强学习算法用于改进主题模型：&lt;/p&gt;
+&lt;p&gt;1.首先利用个性化标签数据和历史访问数据组合构建每个用户向量；
+●
+2.然后在学习用户向量过程中，算法基于强化学习的框架更新用户向量权值，且对较新的用户评价数据给予更高的权重，从而有效反映了用户的最新兴趣;
+●
+3.最后根据学习到的用户兴趣向量，结合协同过滤的思想对用户进行推荐。&lt;/p&gt;
+&lt;p&gt;决策树
+决策树构建比较简单：&lt;/p&gt;
+&lt;p&gt;1.将所有的用户评分数据映射到&lt;like,dislike, unknown&gt;三维空间上；
+●
+2.从根结点开始，选择最佳的分割项，自顶向下建树；
+●
+3.终止条件，同时考虑以下三种：
+设定树的最大深度；&lt;/p&gt;
+&lt;p&gt;设定最佳分割项的误差阈值；&lt;/p&gt;
+&lt;p&gt;设定当前节点的最少评分数量；&lt;/p&gt;
+&lt;p&gt;集成学习&lt;/p&gt;
+&lt;p&gt;集成学习算法(EnsembleLearning):&lt;/p&gt;
+&lt;p&gt;将一系列学习器进行学习，并使用某种规则把各个学习结果进行整合从而获得比单个学习器更好的学习效果的一种机器学习方法。&lt;/p&gt;
+&lt;p&gt;算法：
+1.Boosting
+2.Bagging&lt;/p&gt;
+&lt;p&gt;集成学习&lt;/p&gt;
+&lt;p&gt;集成学习算法应用于决策树                    随机森林&lt;/p&gt;
+&lt;p&gt;随机森林算法：&lt;/p&gt;
+&lt;p&gt;1.可放回抽样；
+2.分类时选一小部分特征；
+3.不剪枝情况下生成tree；
+4.生成一片森林，分类时用每一棵树的结果vote&lt;/p&gt;
+&lt;p&gt;Bagging&lt;/p&gt;
+&lt;p&gt;Bagging和随机森林的思路相似，随机有放回的采样数据，建立多个训练器，最终预测函数对分类问题采用投票的方式得到结果。&lt;/p&gt;
+&lt;p&gt;Boosting&lt;/p&gt;
+&lt;p&gt;Boosting的思想是考虑了权重的：&lt;/p&gt;
+&lt;p&gt;1.初始化时对每一个训练例赋相等的权重；
+2.然后用该学算法对训练集训练多轮，每次训练后，对训练失败的训练例赋以较大的权重；
+3.得到一个预测函数序列, 预测效果好的预测函数权重较大，反之较小；
+4.最终的预测函数对分类问题采用有权重的投票。&lt;/p&gt;
+&lt;p&gt;基于Boosting的个性化推荐算法:&lt;/p&gt;
+&lt;p&gt;传统的协同过滤算法中，定位相似人群，利用KNN的方法，将评分乘以人群相似度加权值，取平均。&lt;/p&gt;
+&lt;p&gt;定位相似人群是最关键的步骤，其中有传统方法和基于局部结构两种方法；&lt;/p&gt;
+&lt;p&gt;传统相似度算法有：
+1.余弦相似度；
+●
+2.正规化余弦相似度；(公式如下)
+●
+3.Pearson相关性；&lt;/p&gt;
+&lt;p&gt;I表示商品集合&lt;/p&gt;
+&lt;p&gt;r表示评分矩阵&lt;/p&gt;
+&lt;p&gt;基于局部结构的相似度计算有：&lt;/p&gt;
+&lt;p&gt;1.公共邻居:考虑两个用户之间共同打分的个数；
+●
+2.Salton指标；
+●
+3.Jaccard指标；
+●
+4.Sϕrensen算法；
+●
+I表示商品集合&lt;/p&gt;
+&lt;p&gt;r表示评分矩阵&lt;/p&gt;
+&lt;p&gt;上述众多的相似度测量方法可以产生众多的弱分类器，利用Boosting的思想来产生最优组合；&lt;/p&gt;</summary><category term="算法"></category></entry><entry><title>机器学习笔记</title><link href="/ji-qi-xue-xi-bi-ji.html" rel="alternate"></link><updated>2014-01-23T17:15:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:ji-qi-xue-xi-bi-ji.html</id><summary type="html">&lt;p&gt;机器学习分作监督学习和非监督学习：其中，&lt;/p&gt;
+&lt;p&gt;监督学习是有预测结果的，最常见的算法是分类算法&lt;/p&gt;
+&lt;p&gt;非监督学习是无预测结果的，最常见的算法是聚类算法&lt;/p&gt;
+&lt;p&gt;梯度下降算法是用于得到极值点的方法，在线性回归中，梯度下降算法可以应用于回归过程，得到最小二乘法的结果。&lt;/p&gt;
+&lt;p&gt;线性回归算法试图用线性方程来回归数据集，回归时，一个或多个outlier的存在会把回归方程畸形化，所以在做分类时，用线性回归不是一个好主意，而做logistic回归的时候，可以将输出从连续值转换为0或者1的分类值，适用于分类算法。logistic回归的时候，ML算法同样会运用梯度上升的算法得到极大值点时候的theta值，从而确定分类关系。&lt;/p&gt;
+&lt;p&gt;牛顿梯度算法是梯度下降算法的优化，可以快速算法过程，在数据维度为vector的时候，每一次逼近都需要计算一次hessian矩阵的逆（二次求导矩阵），因此当维度过大的时候计算量会很大。&lt;/p&gt;
+&lt;p&gt;线性回归容易欠拟合，如果当选择维度过多的时候又容易出现过拟合的情况。过拟合一般是分类算法最大的问题，因此，有很多解决算法出现，比如对于决策树算法，RF（随机森林）是一个避免过拟合的优化。&lt;/p&gt;
+&lt;p&gt;discriminative model（判别式模型）包括logistic回归，SVM等，是将数据集分类的模型，而另一类generative model（产生式模型）的思想是，先分别取各类数据集，建立模型来总结各类数据，然后当新的数据出现的时候，分析他更类似于哪种模型来做区分，常见的基本都属于这类，包括高斯模型（建立多维高斯模型来描述各类模型），决策树模型，主题模型，高斯模型等等。&lt;/p&gt;
+&lt;p&gt;混合高斯模型可以推出logistic回归的sigmoid分布，将高斯的概率值设为0~1，Pr(y=1|x)的值在高斯x轴上呈现sigmoid函数形状（s型）。&lt;/p&gt;
+&lt;p&gt;产生式模型需要对于数据有清晰的认识，对于高斯分布，如果建立了泊松分布或者是伯努利分布，那么在模型的判别上会造成准确性的丧失，而判别模型则不需要考虑数据模型的分布。&lt;/p&gt;
+&lt;p&gt;判别模型需要大量的数据支撑从而得到较为正确的分类器，而产生式模型没有这个限制。&lt;/p&gt;
+&lt;p&gt;对于垃圾邮件甄别算法，离散型词袋可以用朴素贝叶斯算法进行分类，而对于因为分类从未出现的词导致概率为0/0，可以使用laplace平滑算法（即给所有的计数都加1）的方式来解决。&lt;/p&gt;
+&lt;p&gt;甄别方法有两种：&lt;/p&gt;
+&lt;p&gt;1.一个词是否出现为值，0和1&lt;/p&gt;
+&lt;p&gt;2.记录每个词出现的概率，用多项分布的模型，将所有词的概率相乘(较优于第一种)&lt;/p&gt;
+&lt;p&gt;logistic回归的核H()为e^(theta*T)，所以指数型的核都会得到线性的分类结果，而高斯分布也是指数型的核，为了得到非指数型的核，可以考虑用神经网络的方法，即用多个核形成hidden layer，然后再用一个输出核将hidden layer的输出作为输入，得到最终输出。&lt;/p&gt;
+&lt;p&gt;神经网络算法不如SVM常用，而SVM也是现在最常用的算法，神经网络算法的最大问题是取得最优值的难度太大，如果是Logistic回归算法，用梯度下降算法或者ML算法可以得到一个全局的最优解，对于有隐藏层的神经网络来说，会有多个最优解的结果。&lt;/p&gt;
+&lt;p&gt;神经网络得到最优解的算法是反向传播（BP）算法&lt;/p&gt;
+&lt;p&gt;SVM的核是将数据集投射到高维空间中，然后SVM算法在线性可分的假设下将数据分类，当数据不是线性可分的时候，有软分类算法（L1型SVM算法--加入补偿系数；L2型SVM算法--SMO等）。&lt;/p&gt;
+&lt;p&gt;用于SMO取得最佳值的算法是坐标上升算法，即，在若干未知系数求最大值的时候，改变某一个系数，固定其他系数不变，每次迭代取得最佳值。&lt;/p&gt;
+&lt;p&gt;坐标上升算法相比于牛顿算法等需要迭代更多次数，但是每次迭代的计算量有可能很cheap，对于SMO算法的最优值取得有很好的效果。&lt;/p&gt;
+&lt;p&gt;识别ocr或者图像的时候，比如邮编，传统的算法中神经网络算法的性能是最好的，但是SVM算法在使用多项式核和高斯核的时候，可以得到一个不逊于神经网络算法的结果，其中，SVM算法允许任意打乱pixel的顺序，不考虑几个pixel之间的相对位置关系，很有意义。&lt;/p&gt;
+&lt;p&gt;识别蛋白质族的时候，也优选SVM算法，将四个字母得到4^26次方个组合形式，只统计各种氨基酸出现的次数，由于组合形式太多，考虑采用内积的方式简化（？）&lt;/p&gt;</summary><category term="算法"></category></entry><entry><title>R语言解决MongoDB中文编码问题</title><link href="/ryu-yan-jie-jue-mongodbzhong-wen-bian-ma-wen-ti.html" rel="alternate"></link><updated>2014-01-23T17:14:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:ryu-yan-jie-jue-mongodbzhong-wen-bian-ma-wen-ti.html</id><summary type="html">&lt;p&gt;R语言的中文支持不好，采用的编码方式常常优先考虑西方语言，http://developer.r-project.org/Encodings_and_R.html中有介绍&lt;/p&gt;
+&lt;p&gt;而MongoDB中储存的中文采用的是UTF-8格式编码，因此&lt;/p&gt;
+&lt;p&gt;p &amp;lt;- mongo.find.all(mongo,ns)
+temp&amp;lt;-unlist(p[1,2]);&lt;/p&gt;
+&lt;p&gt;读出的数据temp中，中文无法显示操作&lt;/p&gt;
+&lt;p&gt;将中文改变编码格式的函数是&lt;/p&gt;
+&lt;p&gt;Encoding(temp)&amp;lt;-"UTF-8";&lt;/p&gt;
+&lt;p&gt;此时的temp就是可以正常显示的了&lt;/p&gt;
+&lt;p&gt;搜索MongoDB中的字符串的时候，想find一个中文字符串，可以考虑先将中文从GB2312转到utf-8，搜索后，再转回来，转为utf-8的方法是：&lt;/p&gt;
+&lt;p&gt;queryString&amp;lt;-"求回复";&lt;/p&gt;
+&lt;h1&gt;编码转换&lt;/h1&gt;
+&lt;p&gt;data3=iconv(queryString, from='GB2312', to='utf-8')&lt;/p&gt;
+&lt;h1&gt;搜索&lt;/h1&gt;
+&lt;p&gt;buf &amp;lt;- mongo.bson.buffer.create()
+mongo.bson.buffer.append(buf, "content", queryString)
+query &amp;lt;- mongo.bson.from.buffer(buf)&lt;br /&gt;
+mongo.find.one(mongo, ns, query)&lt;/p&gt;</summary><category term="R"></category><category term="mongoDB"></category></entry><entry><title>gensim做主题模型</title><link href="/gensimzuo-zhu-ti-mo-xing.html" rel="alternate"></link><updated>2014-01-23T17:12:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:gensimzuo-zhu-ti-mo-xing.html</id><summary type="html">&lt;p&gt;作为python的一个库，gensim给了文本主题模型足够的方便，像他自己的介绍一样，topic modelling for humans&lt;/p&gt;
+&lt;p&gt;具体的tutorial可以参看他的官方网页，当然是全英文的，http://radimrehurek.com/gensim/tutorial.html&lt;/p&gt;
+&lt;p&gt;由于这个链接打开速度太慢太慢，我决定写个中文总结：（文章参考了52nlp的博客，参看http://www.52nlp.cn）&lt;/p&gt;
+&lt;p&gt;安装就不用说了，在ubuntu环境下，sudo easy_install gensim即可&lt;/p&gt;
+&lt;p&gt;首先，引用gensim包，gensim包中引用corpora,models, similarities，分别做语料库建立，模型库和相似度比较库，后面可以看到例子&lt;/p&gt;
+&lt;p&gt;from gensim import corpora, models, similarities&lt;/p&gt;
+&lt;p&gt;我调用了结巴分词做中文处理，所以同样&lt;/p&gt;
+&lt;p&gt;import jieba&lt;/p&gt;
+&lt;p&gt;手工写个文本列表&lt;/p&gt;
+&lt;p&gt;sentences = ["我喜欢吃土豆","土豆是个百搭的东西","我不喜欢今天雾霾的北京"]&lt;/p&gt;
+&lt;p&gt;用结巴分词后待用，因为gensim包做主题模型，在意的是语料库，所以，中文英文，one-term，two-term都是无所谓的，如果有已经生成好的语料库，那么可以考虑直接跳到建模环节&lt;/p&gt;
+&lt;p&gt;官方提供的语料库范例是这样的：&lt;/p&gt;
+&lt;p&gt;corpus = [[(0, 1.0), (1, 1.0), (2, 1.0)],&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;      &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)],&lt;/span&gt;
+      &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)],&lt;/span&gt;
+      &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;2.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)],&lt;/span&gt;
+      &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)],&lt;/span&gt;
+      &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)],&lt;/span&gt;
+      &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)],&lt;/span&gt;
+      &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)],&lt;/span&gt;
+      &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;)]]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;每个中括号代表一句话，用逗号隔开，（0，1.0）代表词典中编号为0的词出现了一次，以此类推，很好理解&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;回到过程中来，将范例的语句分词&lt;/p&gt;
+&lt;p&gt;words=[]
+for doc in sentences:
+    words.append(list(jieba.cut(doc)))
+print words&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;[[u'\u6211', u'\u559c\u6b22', u'\u5403', u'\u571f\u8c46'], [u'\u571f\u8c46', u'\u662f', u'\u4e2a', u'\u767e', u'\u642d', u'\u7684', u'\u4e1c\u897f'], [u'\u6211', u'\u4e0d', u'\u559c\u6b22', u'\u4eca\u5929', u'\u96fe', u'\u973e', u'\u7684', u'\u5317\u4eac']]&lt;/p&gt;
+&lt;p&gt;此时输出的格式为unicode，不影响后期运算，因此我保留不变，如果想看分词结果可以用循环输出jieba分词结果&lt;/p&gt;
+&lt;p&gt;得到的分词结果构造词典&lt;/p&gt;
+&lt;p&gt;dic = corpora.Dictionary(words)
+print dic
+print dic.token2id&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;Dictionary(15 unique tokens)
+{'\xe5\x8c\x97\xe4\xba\xac': 12, '\xe6\x90\xad': 6, '\xe7\x9a\x84': 9, '\xe5\x96\x9c\xe6\xac\xa2': 1, '\xe4\xb8\x8d': 10, '\xe4\xb8\x9c\xe8\xa5\xbf': 4, '\xe5\x9c\x9f\xe8\xb1\x86': 2, '\xe9\x9c\xbe': 14, '\xe6\x98\xaf': 7, '\xe4\xb8\xaa': 5, '\xe9\x9b\xbe': 13, '\xe7\x99\xbe': 8, '\xe4\xbb\x8a\xe5\xa4\xa9': 11, '\xe6\x88\x91': 3, '\xe5\x90\x83': 0}
+可以看到各个词或词组在字典中的编号&lt;/p&gt;
+&lt;p&gt;为了方便看，我给了个循环输出：&lt;/p&gt;
+&lt;p&gt;for word,index in dic.token2id.iteritems():
+    print word +" 编号为:"+ str(index)&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;北京 编号为:12
+搭 编号为:6
+的 编号为:9
+喜欢 编号为:1
+不 编号为:10
+东西 编号为:4
+土豆 编号为:2
+霾 编号为:14
+是 编号为:7
+个 编号为:5
+雾 编号为:13
+百 编号为:8
+今天 编号为:11
+我 编号为:3
+吃 编号为:0&lt;/p&gt;
+&lt;p&gt;为什么是乱序，我也不知道&lt;/p&gt;
+&lt;p&gt;词典生成好之后，就开始生成语料库了&lt;/p&gt;
+&lt;p&gt;corpus = [dic.doc2bow(text) for text in words]
+print corpus&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;[[(0, 1), (1, 1), (2, 1), (3, 1)], [(2, 1), (4, 1), (5, 1), (6, 1), (7, 1), (8, 1), (9, 1)], [(1, 1), (3, 1), (9, 1), (10, 1), (11, 1), (12, 1), (13, 1), (14, 1)]]&lt;/p&gt;
+&lt;p&gt;语料库的官方描述写的是向量空间模型格式的语料库，Corpus is simply an object which, when iterated over, returns its documents represented as sparse vectors.&lt;/p&gt;
+&lt;p&gt;官方说明给了一个tips：&lt;/p&gt;
+&lt;p&gt;In this example, the whole corpus is stored in memory, as a Python list. However,the corpus interface only dictates that a corpus must support iteration over its constituent documents. For very large corpora, it is advantageous to keep the corpus on disk, and access its documents sequentially, one at a time. All the operations and transformations are implemented in such a way that makes them independent of the size of the corpus, memory-wise.&lt;/p&gt;
+&lt;p&gt;大概意思就是说范例中的语料库是存在内存中的一个列表格式，但是接口对语料库的要求只是，支持在构建文本文件中可循环即可，因此对于很大的语料库，最好还是存在硬盘上，然后依次访问文件。这样可以不用考虑语料库的size，也避免了内存占用太多&lt;/p&gt;
+&lt;p&gt;此时，得到了语料库，接下来做一个TF-IDF变换&lt;/p&gt;
+&lt;p&gt;可以理解成 将用词频向量表示一句话 变换成为用 词的重要性向量表示一句话&lt;/p&gt;
+&lt;p&gt;（TF-IDF变换：评估一字词对于一个文件集或一个语料库中的其中一份文件的重要程度。字词的重要性随着它在文件中出现的次数成正比增加，但同时会随着它在语料库中出现的频率成反比下降。）&lt;/p&gt;
+&lt;p&gt;tfidf = models.TfidfModel(corpus)&lt;/p&gt;
+&lt;p&gt;vec = [(0, 1), (4, 1)]
+print tfidf[vec]
+corpus_tfidf = tfidf[corpus]
+for doc in corpus_tfidf:
+    print doc&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;[(0, 0.7071067811865475), (4, 0.7071067811865475)]
+[(0, 0.8425587958192721), (1, 0.3109633824035548), (2, 0.3109633824035548), (3, 0.3109633824035548)]
+[(2, 0.16073253746956623), (4, 0.4355066251613605), (5, 0.4355066251613605), (6, 0.4355066251613605), (7, 0.4355066251613605), (8, 0.4355066251613605), (9, 0.16073253746956623)]
+[(1, 0.1586956620869655), (3, 0.1586956620869655), (9, 0.1586956620869655), (10, 0.42998768831312806), (11, 0.42998768831312806), (12, 0.42998768831312806), (13, 0.42998768831312806), (14, 0.42998768831312806)]&lt;/p&gt;
+&lt;p&gt;vec是查询文本向量，比较vec和训练中的三句话相似度&lt;/p&gt;
+&lt;p&gt;index = similarities.SparseMatrixSimilarity(tfidf[corpus], num_features=14)
+sims = index[tfidf[vec]]
+print list(enumerate(sims))&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;[(0, 0.59577906), (1, 0.30794966), (2, 0.0)]&lt;/p&gt;
+&lt;p&gt;表示和第1句话相似度为59.578%，和第二句话的相似度位30.79%，第三句没有相似度，&lt;/p&gt;
+&lt;p&gt;我们看看vec这句话是什么：0为吃，4为东西，所以vec这句话可以是["吃东西"]或者["东西吃"]&lt;/p&gt;
+&lt;p&gt;而第一句话"我喜欢吃土豆","土豆是个百搭的东西"明显有相似度，而第三句话"我不喜欢今天雾霾的北京"，相似度几乎为0，至于为什么第一句比第二句更相似，就需要考虑TfIdf document representation和cosine similarity measure了&lt;/p&gt;
+&lt;p&gt;回到tfidf转换，接着训练LSI模型，假定三句话属于2个主题，&lt;/p&gt;
+&lt;p&gt;lsi = models.LsiModel(corpus_tfidf, id2word=dic, num_topics=2)
+lsiout=lsi.print_topics(2)
+print lsiout[0]
+print lsiout[1]&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;0.532&lt;em&gt;"吃" + 0.290&lt;/em&gt;"喜欢" + 0.290&lt;em&gt;"我" + 0.258&lt;/em&gt;"土豆" + 0.253&lt;em&gt;"霾" + 0.253&lt;/em&gt;"雾" + 0.253&lt;em&gt;"北京" + 0.253&lt;/em&gt;"今天" + 0.253&lt;em&gt;"不" + 0.166&lt;/em&gt;"东西"
+0.393&lt;em&gt;"百" + 0.393&lt;/em&gt;"搭" + 0.393&lt;em&gt;"东西" + 0.393&lt;/em&gt;"是" + 0.393&lt;em&gt;"个" + -0.184&lt;/em&gt;"霾" + -0.184&lt;em&gt;"雾" + -0.184&lt;/em&gt;"北京" + -0.184&lt;em&gt;"今天" + -0.184&lt;/em&gt;"不"&lt;/p&gt;
+&lt;p&gt;这就是基于SVD建立的两个主题模型内容&lt;/p&gt;
+&lt;p&gt;将文章投影到主题空间中&lt;/p&gt;
+&lt;p&gt;corpus_lsi = lsi[corpus_tfidf]
+for doc in corpus_lsi:
+    print doc&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;[(0, -0.70861576320682107), (1, 0.1431958007198823)]
+[(0, -0.42764142348481798), (1, -0.88527674470703799)]
+[(0, -0.66124862582594512), (1, 0.4190711252114323)]&lt;/p&gt;
+&lt;p&gt;因此第一三两句和主题一相似，第二句和主题二相似&lt;/p&gt;
+&lt;p&gt;同理做个LDA&lt;/p&gt;
+&lt;p&gt;lda = models.LdaModel(corpus_tfidf, id2word=dic, num_topics=2)
+ldaOut=lda.print_topics(2)
+print ldaOut[0]
+print ldaOut[1]
+corpus_lda = lda[corpus_tfidf]
+for doc in corpus_lda:
+    print doc&lt;/p&gt;
+&lt;p&gt;得到的结果每次都变，给一次的输出：&lt;/p&gt;
+&lt;p&gt;0.077&lt;em&gt;吃 + 0.075&lt;/em&gt;北京 + 0.075&lt;em&gt;雾 + 0.074&lt;/em&gt;今天 + 0.073&lt;em&gt;不 + 0.072&lt;/em&gt;霾 + 0.070&lt;em&gt;喜欢 + 0.068&lt;/em&gt;我 + 0.062&lt;em&gt;的 + 0.061&lt;/em&gt;土豆
+0.091&lt;em&gt;吃 + 0.073&lt;/em&gt;搭 + 0.073&lt;em&gt;土豆 + 0.073&lt;/em&gt;个 + 0.073&lt;em&gt;是 + 0.072&lt;/em&gt;百 + 0.071&lt;em&gt;东西 + 0.066&lt;/em&gt;我 + 0.065&lt;em&gt;喜欢 + 0.059&lt;/em&gt;霾
+[(0, 0.31271095988105352), (1, 0.68728904011894654)]
+[(0, 0.19957991735916861), (1, 0.80042008264083142)]
+[(0, 0.80940337254233863), (1, 0.19059662745766134)]&lt;/p&gt;
+&lt;p&gt;第一二句和主题二相似，第三句和主题一相似&lt;/p&gt;
+&lt;p&gt;结论和LSI不一样，我估计这和样本数目太少，区别度不高有关，毕竟让我来区分把第一句和哪一句分在一个主题，我也不确定&lt;/p&gt;
+&lt;p&gt;输入一句话，查询属于LSI得到的哪个主题类型，先建立索引：&lt;/p&gt;
+&lt;p&gt;index = similarities.MatrixSimilarity(lsi[corpus])
+query = "雾霾"
+query_bow = dic.doc2bow(list(jieba.cut(query)))
+print query_bow
+query_lsi = lsi[query_bow]
+print query_lsi&lt;/p&gt;
+&lt;p&gt;输出:&lt;/p&gt;
+&lt;p&gt;[(13, 1), (14, 1)]
+[(0, 0.50670602027401368), (1, -0.3678056037187441)]&lt;/p&gt;
+&lt;p&gt;与第一个主题相似&lt;/p&gt;
+&lt;p&gt;比较和第几句话相似，用LSI得到的索引接着做，并排序输出&lt;/p&gt;
+&lt;p&gt;sims = index[query_lsi]
+print list(enumerate(sims))
+sort_sims = sorted(enumerate(sims), key=lambda item: -item[1])
+print sort_sims&lt;/p&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;p&gt;[(0, 0.90161765), (1, -0.10271341), (2, 0.99058259)]
+[(2, 0.99058259), (0, 0.90161765), (1, -0.10271341)]&lt;/p&gt;
+&lt;p&gt;可见和第二句话相似度很高，因为只有第二句话出现了雾霾两个词，可是惊讶的是和第一句话的相似度也很高，这得益于LSI模型的算法：在A和C共现，B和C共现的同时，可以找到A和B的相似度&lt;/p&gt;
+&lt;p&gt;在此感谢52nlp的好资源&lt;/p&gt;</summary><category term="gensim"></category><category term="Ubuntu"></category><category term="Python"></category></entry><entry><title>ubuntu 12.04安装coreseek 4.1beta</title><link href="/ubuntu-1204an-zhuang-coreseek-41beta.html" rel="alternate"></link><updated>2014-01-23T17:11:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:ubuntu-1204an-zhuang-coreseek-41beta.html</id><summary type="html">&lt;p&gt;coreseek安装需要预装的软件：
+shell&amp;gt;apt-get install make gcc g++ automake libtool m4 autoconf mysql-client libmysqlclient15-dev libxml2-dev libexpat1-dev&lt;/p&gt;
+&lt;h2&gt;切换到root用户，确保拥有完整的权限来安装软件&lt;/h2&gt;
+&lt;p&gt;$ su root&lt;/p&gt;
+&lt;p&gt;$ cd coreseek-4.1-beta&lt;/p&gt;
+&lt;h2&gt;中文测试环境检查：&lt;/h2&gt;
+&lt;p&gt;$  locale&lt;/p&gt;
+&lt;h2&gt;以下为核心项，locale为zh_CN.UTF-8，就可以正常显示和输入中文；&lt;/h2&gt;
+&lt;h2&gt;如果不能正常显示中文，则后面的中文测试部分无法正常进行，但不会影响coreseek的实际功能；&lt;/h2&gt;
+&lt;p&gt;LANG=zh_CN.UTF-8
+LC_ALL="zh_CN.UTF-8"&lt;/p&gt;
+&lt;h2&gt;确保可以正常显示，否则请检查当前环境的locale配置，以及当前环境或者客户端已设置好支持UTF-8中文字符显示&lt;/h2&gt;
+&lt;p&gt;$ cat testpack/var/test/test.xml&lt;/p&gt;
+&lt;h2&gt;安装coreseek开发的mmseg，为coreseek提供中文分词功能&lt;/h2&gt;
+&lt;p&gt;$ cd mmseg-3.2.14&lt;/p&gt;
+&lt;h2&gt;ubuntu环境下，需要使用ACLOCAL_FLAGS="-I /usr/share/aclocal" ./bootstrap&lt;/h2&gt;
+&lt;p&gt;$ ./bootstrap
+$ ./configure --prefix=/usr/local/mmseg3
+$ make &amp;amp;&amp;amp; make install&lt;/p&gt;
+&lt;h2&gt;如果提示libtool: unrecognized option `--tag=CC' ，请查看libtool问题解决方案&lt;/h2&gt;
+&lt;h2&gt;安装完成后，mmseg使用的词典和配置文件，将自动安装到/usr/local/mmseg3/etc中&lt;/h2&gt;
+&lt;h2&gt;中文分词测试，显示不正常，请检查当前环境下的locale和UTF-8中文字符显示设置&lt;/h2&gt;
+&lt;p&gt;$  /usr/local/mmseg3/bin/mmseg -d /usr/local/mmseg3/etc src/t1.txt
+    中文/x 分/x 词/x 测试/x 
+    中国人/x 上海市/x 
+Word Splite took: 1 ms.&lt;/p&gt;
+&lt;h2&gt;安装coreseek：&lt;/h2&gt;
+&lt;p&gt;$ cd csft-/usr/local/coreseek/bin/indexer -c etc/csft.conf --all --rotate&lt;/p&gt;
+&lt;h2&gt;执行configure，进行编译配置：&lt;/h2&gt;
+&lt;p&gt;$ sh buildconf.sh
+$ ./configure --prefix=/usr/local/coreseek --without-python --without-unixodbc --with-mmseg --with-mmseg-includes=/usr/local/mmseg3/include/mmseg/ --with-mmseg-libs=/usr/local/mmseg3/lib/ --with-mysql&lt;/p&gt;
+&lt;p&gt;$ make &amp;amp;&amp;amp; make install&lt;/p&gt;
+&lt;p&gt;如果编译出错，出现类似于：
+make[2]: &lt;strong&gt;&lt;em&gt; [sphinxexpr.o] Error 1
+make[2]: Leaving directory &lt;code&gt;/home/mac/Downloads/coreseek-4.1-beta/csft-4.1/src'
+make[1]: *** [all] Error 2
+make[1]: Leaving directory&lt;/code&gt;/home/mac/Downloads/coreseek-4.1-beta/csft-4.1/src'
+make: &lt;/em&gt;&lt;/strong&gt; [all-recursive] Error 1
+的问题，需要打一个补丁：&lt;/p&gt;
+&lt;p&gt;一个有用的链接：http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=667378，是关于coreseek上游的sphinx的同样问题的，看了一下了解似乎是gcc 4.7的C++作用域的问题，上面的debian bugs里面提供了一个patch，看了下patch的内容，也对自己本地的coreseek的制作了同样的补丁，压缩包发布如下，使用时注意版本：sphinxexpr.cpp.patch.zip&lt;/p&gt;
+&lt;p&gt;root@china:/home/china/Downloads/coreseek-4.1-beta/csft-4.1# patch -p1 &amp;lt; /home/china/Downloads/sphinxexpr.cpp-csft-4.1-beta.patch
+can't find file to patch at input line 3
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:&lt;/p&gt;
+&lt;hr /&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;--- /home/china/Downloads/coreseek-4.1-beta/csft-4.1/src/sphinxexpr.cpp    2011-10-07 20:08:58.000000000 +0800&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;--------------------------&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;File to patch:&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;在file to patch:后输入sphinxexpr.cpp文件的位置  我当时输入的是  /home/china/Downloads/coreseek-4.1-beta/csft-4.1/src/sphinxexpr.cpp&lt;/p&gt;
+&lt;p&gt;补丁打后就可以直接编译通过了&lt;/p&gt;
+&lt;h2&gt;配置测试，测试是否可以正确运行&lt;/h2&gt;
+&lt;p&gt;$ /usr/local/coreseek/bin/indexer -c /usr/local/coreseek/etc/sphinx-min.conf.dist&lt;/p&gt;
+&lt;h2&gt;以下为正常测试时的提示信息：&lt;/h2&gt;
+&lt;p&gt;Coreseek Fulltext 4.1 [ Sphinx 2.0.2-dev (r2922)]
+Copyright (c) 2007-2011,
+Beijing Choice Software Technologies Inc (http://www.coreseek.com)&lt;/p&gt;
+&lt;p&gt;ERROR: nothing to do.&lt;/p&gt;
+&lt;h2&gt;至此，coreseek基础环境正常安装&lt;/h2&gt;
+&lt;p&gt;$ cd testpack&lt;/p&gt;
+&lt;p&gt;$  /usr/local/coreseek/bin/indexer -c etc/csft.conf --all&lt;/p&gt;
+&lt;p&gt;$ /usr/local/coreseek/bin/search -c etc/csft.conf -a 服务&lt;/p&gt;
+&lt;h2&gt;以下为正常测试搜索关键词"服务"的数据&lt;/h2&gt;
+&lt;p&gt;Coreseek Fulltext 4.1 [ Sphinx 2.0.2-dev (r2922)]
+Copyright (c) 2007-2011,
+Beijing Choice Software Technologies Inc (http://www.coreseek.com)&lt;/p&gt;
+&lt;p&gt;using config file 'etc/csft.conf'...
+index 'xml': query '服务 ': returned 1 matches of 1 total in 0.015 sec&lt;/p&gt;
+&lt;p&gt;displaying matches:
+1. document=3, weight=1, published=Wed Mar 31 21:01:00 2010, author_id=2&lt;/p&gt;
+&lt;p&gt;words:
+1. '服务': 1 documents, 1 hits&lt;/p&gt;
+&lt;p&gt;$  /usr/local/coreseek/bin/searchd -c etc/csft.conf&lt;/p&gt;
+&lt;h2&gt;以下为正常开启搜索服务时的提示信息：（csft-4.0版类似）&lt;/h2&gt;
+&lt;p&gt;Coreseek Fulltext 4.1 [ Sphinx 2.0.2-dev (r2922)]
+    Copyright (c) 2007-2010,
+    Beijing Choice Software Technologies Inc (http://www.coreseek.com)&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;using&lt;/span&gt; &lt;span class="n"&gt;config&lt;/span&gt; &lt;span class="n"&gt;file&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;etc&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;csft&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="n"&gt;listening&lt;/span&gt; &lt;span class="n"&gt;on&lt;/span&gt; &lt;span class="n"&gt;all&lt;/span&gt; &lt;span class="n"&gt;interfaces&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;9312&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;如要停止搜索服务，/usr/local/coreseek/bin/searchd -c etc/csft.conf --stop&lt;/h2&gt;
+&lt;h2&gt;如要已启动服务，要更新索引，/usr/local/coreseek/bin/indexer -c etc/csft.conf --all --rotate&lt;/h2&gt;
+&lt;h2&gt;然后，请参考csft-4.1下api目录中的相关文件，使用PHP、Python、Ruby、Java来测试搜索服务；也可以前往&amp;lt; a href="/products-install/step_by_step/"&amp;gt;搜索服务建立三步曲，查看第三步使用PHP测试。&lt;/h2&gt;
+&lt;p&gt;文章参考了并自己测试通过：http://blog.csdn.net/liangpz521/article/details/8795286和http://blog.csdn.net/andybegin/article/details/8724506
+感谢原作者&lt;/p&gt;</summary><category term="coreseek"></category><category term="Ubuntu"></category></entry><entry><title>TF-IDF提取关键词并用余弦算法计算相似度</title><link href="/tf-idfti-qu-guan-jian-ci-bing-yong-yu-xian-suan-fa-ji-suan-xiang-si-du.html" rel="alternate"></link><updated>2014-01-23T17:09:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:tf-idfti-qu-guan-jian-ci-bing-yong-yu-xian-suan-fa-ji-suan-xiang-si-du.html</id><summary type="html">&lt;p&gt;TF-IDF算法是一个很易懂的关键词提取算法，算法易实现，易懂且易操作，缺陷是将词频作为唯一考虑因素，且对于位置没有敏感性，位置的问题可以通过人为添加权重的方式改善，比如给第一段最后一段，或者每一段的第一句话加高权重。。。（类似于总分，总分总啥的文本结构吧）&lt;/p&gt;
+&lt;p&gt;TF-IDF算法简单描述：&lt;/p&gt;
+&lt;p&gt;TF是Term Frequency的缩写，即单纯的计算词频，比如，两句话分别是“我最喜欢吃我做的土豆”，“我最喜欢海”，因为是简介，就不讲究完备性，不将这句话分词，只考虑每个字，那么，第一句话中，“我”出现了两次，其他的字各出现了一次，第二句中，所有的字都出现了一次，那么计算TF的时候，只用将每个字的出现次数除以总字数即可：&lt;/p&gt;
+&lt;p&gt;TF = 文章中出现次数/文章总词数&lt;/p&gt;
+&lt;p&gt;【我：0.2，最：0.1，喜：0.1，欢：0.1，吃：0.1，做：0.1，的：0.1，土：0.1，豆：0.1】&lt;/p&gt;
+&lt;p&gt;【我：0.2，最：0.2，喜：0.2，欢：0.2，海：0.2】&lt;/p&gt;
+&lt;p&gt;为了避免“我”，"最"等等stop word占权重太大，考虑将这种会出现在大部分文章中的字减小概率，这时候引用IDF（Inverse Document Frequency），就是一个如果含有该词的文档出现次数越多，值越小的公式&lt;/p&gt;
+&lt;p&gt;IDF = log(总文章数/含有该词的文章数)&lt;/p&gt;
+&lt;p&gt;为了避免出现除0的情况出现，一般会给分母+1，类似于laplace平滑意义：&lt;/p&gt;
+&lt;p&gt;IDF = log(总文章数/（含有该词的文章数+1）)&lt;/p&gt;
+&lt;p&gt;TF-IDF的值，就是将TF*IDF，然后排序，值高的词认为更有意义，作为代表性输出&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;余弦相似度是计算文档相似度的方法&lt;/p&gt;
+&lt;p&gt;参考http://blog.csdn.net/whzhcahzxh/article/details/17528261里面的实现&lt;/p&gt;
+&lt;p&gt;将一段话转换为语料库后，得到多维度向量，用a&lt;em&gt;b/(|a|&lt;/em&gt;|b|)计算余弦值，值越大两个向量越相似&lt;/p&gt;</summary><category term="文本挖掘"></category><category term="Python"></category><category term="TF-IDF"></category></entry><entry><title>coreseek搭配使用python源</title><link href="/coreseekda-pei-shi-yong-pythonyuan.html" rel="alternate"></link><updated>2014-01-23T17:08:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:coreseekda-pei-shi-yong-pythonyuan.html</id><summary type="html">&lt;p&gt;网络资料真少啊，官方给的文档还算详细，但是没有交流就没有成功，开源的意义&lt;/p&gt;
+&lt;p&gt;Ubuntu环境下使用：&lt;/p&gt;
+&lt;p&gt;不知道为啥，搭配好环境后，原本在cmd栏下直接运行python的脚本命令找不到了，只能用运行python2.7来执行相同操作，求解&lt;/p&gt;
+&lt;p&gt;下载的coreseek自己提供的测试数据和conf文件，配置主要是将 path = /usr/bin/python2设定为电脑装有python可执行程序的位置，我的机器位置如上&lt;/p&gt;
+&lt;p&gt;python路径定义提供的是python源的位置，脚本的位置&lt;/p&gt;
+&lt;p&gt;源定义基本不用改，在python文件中采用相同格式即可&lt;/p&gt;
+&lt;p&gt;csft_demo_python.conf内容:&lt;/p&gt;
+&lt;h1&gt;python路径定义&lt;/h1&gt;
+&lt;p _="
+" _usr_local_coreseek_etc_pysource="/usr/local/coreseek/etc/pysource" _usr_local_coreseek_etc_pysource_csft_demo="/usr/local/coreseek/etc/pysource/csft_demo" etc_pysource="etc/pysource" etc_pysource_csft_demo="etc/pysource/csft_demo" id="Windows环境下设置，最好给出绝对路径" path="path"&gt;python &lt;/p&gt;
+&lt;h1&gt;源定义&lt;/h1&gt;
+&lt;p&gt;source python 
+{ 
+    type = python 
+    name = csft_demo.MainSource #对应etc/pysource/csft_demo/&lt;strong&gt;init&lt;/strong&gt;.py中的MainSource&lt;br /&gt;
+} &lt;/p&gt;
+&lt;h1&gt;index定义&lt;/h1&gt;
+&lt;p 0="0" 1="1" _="
+" _usr_bin_python2="/usr/bin/python2" _usr_local_mmseg3_etc_="/usr/local/mmseg3/etc/" charset_dictpath="charset_dictpath" charset_type="charset_type" docinfo="docinfo" etc_="etc/" extern="extern" html_strip="html_strip" id="Windows环境下设置，/符号结尾" min_word_len="min_word_len" mlock="mlock" morphology="morphology" none="none" path="path" python="python" source="source" zh_cn.utf-8="zh_cn.utf-8"&gt;index python &lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;init&lt;/strong&gt;.py内容:&lt;/p&gt;
+&lt;h1&gt;-&lt;em&gt;- coding:utf-8 -&lt;/em&gt;-&lt;/h1&gt;
+&lt;h1&gt;coreseek3.2 python source演示&lt;/h1&gt;
+&lt;h1&gt;author: HonestQiao&lt;/h1&gt;
+&lt;h1&gt;date: 2010-06-03 11:46&lt;/h1&gt;
+&lt;p&gt;class MainSource(object): 
+    def &lt;strong&gt;init&lt;/strong&gt;(self, conf): 
+        self.conf =  conf 
+        self.idx = 0 
+        self.data = [ 
+            {'id':1, 'subject':u'国土部：5千万亩耕地中重度污染 不能再耕种', 'context':u'原标题：王世元: 中重度污染耕地5000万亩 每年将投数百亿治理修复新华网北京12月30日电（记者 陶叶）30日上午，国务院新闻办公室举行新闻发布会，请国土资源部副部长、国务院第二次全国土地调查领导小组办公室主任王世元和国家统计局副局长张为民等介绍第二次全国土地调查主要数据成果。', 'published':1270131607, 'author_id':1},
+            {'id':2, 'subject':u'Twitter主页改版 推普通用户消息增加趋势话题', 'context':u'4月1日消息，据国外媒体报道，Twitter本周二推出新版主页，目的很简单：帮助新用户了解Twitter和增加用户黏稠度。', 'published':1270135548, 'author_id':1},
+            {'id':3, 'subject':u'张艺谋超生游击队', 'context':u'Opera一直都被认为是浏览速度飞快，同时在移动平台上更是占有不少的份额。', 'published':1270094460, 'author_id':2},
+        ] &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;GetScheme&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  &lt;span class="err"&gt;#获取结构，&lt;/span&gt;&lt;span class="n"&gt;docid&lt;/span&gt;&lt;span class="err"&gt;、文本、整数&lt;/span&gt; 
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt; 
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;docid&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;True&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt; 
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt; 
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt; 
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;published&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;integer&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt; 
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;author_id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;integer&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt; 
+    &lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;GetFieldOrder&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="err"&gt;#字段的优先顺序&lt;/span&gt; 
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
+
+&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;Connected&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;   &lt;span class="err"&gt;#如果是数据库，则在此处做数据库连接&lt;/span&gt; 
+    &lt;span class="n"&gt;pass&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;源码中的输入参数只有一个，但是我的机器报错，说需要输入一个，但是提供了两个，因为coreseek的不透明，我就直接在这里加了一个_，没有问题&lt;/h1&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;NextDocument&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;_&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;   &lt;span class="err"&gt;#取得每一个文档记录的调用&lt;/span&gt; 
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; 
+        &lt;span class="n"&gt;item&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; 
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="err"&gt;#&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;docid&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;True&lt;/span&gt; 
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="n"&gt;encode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;utf&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; 
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="n"&gt;encode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;utf&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; 
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;published&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;published&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; 
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;author_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;author_id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; 
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; 
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;True&lt;/span&gt; 
+    &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; 
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;False&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;if &lt;strong&gt;name&lt;/strong&gt; == "&lt;strong&gt;main&lt;/strong&gt;":    #直接访问演示部分 
+    conf = {} 
+    source = MainSource(conf) 
+    source.Connected() &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NextDocument&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; 
+    &lt;span class="n"&gt;print&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;id=%d, subject=%s&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; 
+&lt;span class="n"&gt;pass&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;eof&lt;/h1&gt;</summary><category term="coreseek"></category><category term="Ubuntu"></category><category term="Python"></category></entry><entry><title>coreseek通过python读取mongoDB数据</title><link href="/coreseektong-guo-pythondu-qu-mongodbshu-ju.html" rel="alternate"></link><updated>2014-01-23T17:07:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:coreseektong-guo-pythondu-qu-mongodbshu-ju.html</id><summary type="html">&lt;p&gt;coreseek的资料真少啊，不人性化&lt;/p&gt;
+&lt;p&gt;官方内容一定要看，进行中...&lt;/p&gt;
+&lt;p&gt;http://www.tapy.org/sphinx1.0/sphinx.html&lt;/p&gt;
+&lt;p&gt;http://www.coreseek.cn/docs/coreseek_4.1-sphinx_2.0.1-beta.html&lt;/p&gt;
+&lt;p&gt;mongoDB不是coreseek/sphinx支持的格式，因此我用python读入mongoDB数据，然后转成python数据源，用coreseek建立索引&lt;/p&gt;
+&lt;p&gt;[python] view plaincopy在CODE上查看代码片派生到我的代码片&lt;/p&gt;
+&lt;h1&gt;-&lt;em&gt;- coding:utf-8 -&lt;/em&gt;-&lt;/h1&gt;
+&lt;h1&gt;author: Hao&lt;/h1&gt;
+&lt;p&gt;import pymongo&lt;br /&gt;
+class MainSource(object):&lt;br /&gt;
+    def &lt;strong&gt;init&lt;/strong&gt;(self, conf):&lt;br /&gt;
+        self.conf =  conf&lt;br /&gt;
+        self.idx = 0         &lt;br /&gt;
+        self.data=[]&lt;br /&gt;
+        self.conn = None&lt;br /&gt;
+        self.cur = None  &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;GetScheme&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  &lt;span class="err"&gt;#获取结构，&lt;/span&gt;&lt;span class="n"&gt;docid&lt;/span&gt;&lt;span class="err"&gt;、文本、整数&lt;/span&gt;  
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;  
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;docid&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;True&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt;  
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt;  
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt;  
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;published&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;integer&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt;  
+        &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;author_id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;integer&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt;  
+    &lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;GetFieldOrder&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  &lt;span class="err"&gt;#选择被搜索字段，并决定字段的优先顺序&lt;/span&gt;  
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
+
+&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;Connected&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;   &lt;span class="err"&gt;#如果是数据库，则在此处做数据库连接&lt;/span&gt;  
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;conn&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;None&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  
+        &lt;span class="err"&gt;#读入数据库数据&lt;/span&gt;  
+        &lt;span class="n"&gt;conn&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pymongo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Connection&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;localhost&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;27017&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  
+        &lt;span class="n"&gt;db&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;conn&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;test&lt;/span&gt;  
+        &lt;span class="n"&gt;dbCollection&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;database&lt;/span&gt;
+
+        &lt;span class="n"&gt;commentset&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[]&lt;/span&gt;  
+        &lt;span class="n"&gt;cursor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;dbCollection&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;  
+        &lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;  
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;commentPiece&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;cursor&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  
+            &lt;span class="n"&gt;sentence&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;commentPiece&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;content&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;  
+            &lt;span class="n"&gt;commentset&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sentence&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;commentset&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  
+            &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;u&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;number&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;str&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;commentset&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;published&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;00001&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;author_id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="p"&gt;})&lt;/span&gt;  
+    &lt;span class="n"&gt;pass&lt;/span&gt;
+
+&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;NextDocument&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;_&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;   &lt;span class="err"&gt;#取得每一个文档记录的调用&lt;/span&gt;  
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  
+        &lt;span class="n"&gt;item&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;  
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="err"&gt;#&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;docid&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;True&lt;/span&gt;  
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="n"&gt;encode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;utf&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="n"&gt;encode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;utf&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;published&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;published&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;  
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;author_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;author_id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;  
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;  
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;True&lt;/span&gt;  
+    &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;False&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;if &lt;strong&gt;name&lt;/strong&gt; == "&lt;strong&gt;main&lt;/strong&gt;":    #直接访问演示部分  &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;conf&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;  
+&lt;span class="n"&gt;source&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;MainSource&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  
+&lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Connected&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NextDocument&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  
+    &lt;span class="n"&gt;print&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;id=%d, context=%s&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  
+&lt;span class="n"&gt;pass&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;eof&lt;/h1&gt;
+&lt;p&gt;刚刚一直无法将文件的id设置成功，一开始怀疑是&lt;/p&gt;
+&lt;p&gt;[python] view plaincopy在CODE上查看代码片派生到我的代码片
+'id' , {'docid':True, }&lt;br /&gt;
+的格式要求不对，后来发现这个好像是固定写法，根据他人的格式，这种写法，docid完全可以是1、2、3、4、5...&lt;/p&gt;
+&lt;p&gt;纠结啊，网上找不到资料，所以试出来之后写个blog给大家&lt;/p&gt;
+&lt;p&gt;[python] view plaincopy在CODE上查看代码片派生到我的代码片
+self.data.append({'id':i&lt;span style="background-color: rgb(102, 255, 255);"&gt;&lt;span style="color:#FF0000;"&gt;+1&lt;/span&gt;&lt;/span&gt;, 'subject':u'number'+str(i),'context':commentset[i], 'published':00001, 'author_id':1 })&lt;br /&gt;
+出现问题的原因是因为，docid必须是非零正整数，这里 i in range（）是从0开始的计数，所以，一直是报错状态&lt;/p&gt;
+&lt;p&gt;另外，一开始试图将mongoDB的数据放在__init__方法中，失败了，还以为是必须要放在Connected这个方法内，事实证明，也是因为id从0开始报错的原因。如果不嫌丑陋，&lt;/p&gt;
+&lt;p&gt;[python] view plaincopy在CODE上查看代码片派生到我的代码片&lt;/p&gt;
+&lt;h1&gt;读入数据库数据&lt;/h1&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;       &lt;span class="n"&gt;conn&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pymongo&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Connection&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;localhost&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;27017&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  
+       &lt;span class="n"&gt;db&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;conn&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;test&lt;/span&gt;  
+       &lt;span class="n"&gt;dbCollection&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;database&lt;/span&gt;
+
+       &lt;span class="n"&gt;commentset&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[]&lt;/span&gt;  
+       &lt;span class="n"&gt;cursor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;dbCollection&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;  
+       &lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;  
+       &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;commentPiece&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;cursor&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  
+           &lt;span class="n"&gt;sentence&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;commentPiece&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;content&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;  
+           &lt;span class="n"&gt;commentset&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sentence&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  
+       &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;commentset&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;  
+           &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;subject&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;u&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;number&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;str&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;commentset&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;published&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;00001&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;author_id&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="p"&gt;})&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这一段可以放在__init__方法中&lt;/p&gt;
+&lt;p&gt;继续探索，good luck to you and me&lt;/p&gt;</summary><category term="coreseek"></category><category term="Ubuntu"></category><category term="Python"></category><category term="mongoDB"></category></entry><entry><title>coreseek配置</title><link href="/coreseekpei-zhi.html" rel="alternate"></link><updated>2014-01-23T17:06:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:coreseekpei-zhi.html</id><summary type="html">&lt;p&gt;Ubuntu上使用coreseek&lt;/p&gt;
+&lt;p&gt;建立索引&lt;/p&gt;
+&lt;p&gt;/usr/local/coreseek/bin/indexer -c csft_demo_python.conf --all&lt;/p&gt;
+&lt;p&gt;查询索引
+/usr/local/coreseek/bin/search -c csft_demo_python.conf -a 性能&lt;/p&gt;
+&lt;p&gt;启动服务进程：
+/usr/local/coreseek/bin/searchd -c csft.conf&lt;/p&gt;
+&lt;p&gt;关闭conf
+/usr/local/coreseek/bin/searchd -c csft.conf --stop&lt;/p&gt;
+&lt;p&gt;先建立索引，然后启动服务，结束后关闭conf&lt;/p&gt;
+&lt;p&gt;增量索引
+/usr/local/coreseek/bin/indexer -c csft_demo_python.conf main --rotate&lt;/p&gt;
+&lt;p&gt;/usr/local/coreseek/bin/searchd -c csft_demo_python.conf&lt;/p&gt;
+&lt;p&gt;/usr/local/coreseek/bin/indexer -c csft_demo_python.conf delta --rotate&lt;/p&gt;
+&lt;p&gt;/usr/local/coreseek/bin/indexer -c csft_demo_python.conf --merge main delta --merge-dst-range deleted 0 0 --rotate&lt;/p&gt;
+&lt;p&gt;测试:
+/usr/local/coreseek/bin/search -c csft_demo_python.conf -a 本版&lt;/p&gt;</summary><category term="coreseek"></category><category term="Ubuntu"></category></entry><entry><title>用github写blog</title><link href="/yong-githubxie-blog.html" rel="alternate"></link><updated>2014-01-23T17:05:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:yong-githubxie-blog.html</id><summary type="html">&lt;p&gt;因为用python，不会ruby的原因，我采用的是pelican这个python的框架&lt;/p&gt;
+&lt;p&gt;安装好github客户端之后，配置pelican和markdown&lt;/p&gt;
+&lt;p&gt;pip install pelican
+pip install Markdown&lt;/p&gt;
+&lt;p&gt;在ubuntu，安装了retext来编辑markdown&lt;/p&gt;
+&lt;p&gt;在git的文件夹下我新建了一个blog的文件夹，cd进入后，执行&lt;/p&gt;
+&lt;p&gt;pelican-quickstart
+会需要选择一些配置项，按需选择
+配置完成后，在文件夹下出现了几个子目录，进入content，编辑一个markdown文档，我新建了一个a.md
+内容是：
+Date: 2014-01-23
+Title: test
+Tags: test
+Category: Test
+Slug: love shuling
+【blog正文内容】&lt;/p&gt;
+&lt;p&gt;就差最后一步了，希望宝贝的年会开心&lt;/p&gt;
+&lt;p&gt;保存退出后，cd ..回到上级目录
+执行make html得到输出，（一定在上级目录执行，我一开始在content下执行，发现make一直无法通过，也没有看到相关资料，后来自己试通的）&lt;/p&gt;
+&lt;p&gt;在output文件夹   cd output/
+git init
+在我的github下生成一个repository，叫   whzhcahzxh.github.io&lt;/p&gt;
+&lt;p&gt;git remote add origin https://github.com/whzhcahzxh/whzhcahzxh.github.io.git&lt;/p&gt;
+&lt;p&gt;git add .
+git commit -m "commit"&lt;/p&gt;
+&lt;p&gt;git push origin master&lt;/p&gt;
+&lt;p&gt;然后，就可以了，到github的这个仓库下，看右边的setting，github page有这么一行&lt;/p&gt;
+&lt;p&gt;GitHub Pages
+Changes may take up to ten minutes to be visible.&lt;/p&gt;
+&lt;p&gt;Your site is published at http://whzhcahzxh.github.io&lt;/p&gt;
+&lt;p&gt;点击进去就好了，这个就是链接了&lt;/p&gt;</summary><category term="github"></category></entry><entry><title>转用github同步代码</title><link href="/zhuan-yong-githubtong-bu-dai-ma.html" rel="alternate"></link><updated>2014-01-23T17:04:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:zhuan-yong-githubtong-bu-dai-ma.html</id><summary type="html">&lt;p&gt;新建一个github账户，然后在本地(Ubuntu)安装git，绑定ssh key，成功后，即可实现同步。&lt;/p&gt;
+&lt;p&gt;感谢git普及好文字，http://rogerdudler.github.io/git-guide/index.zh.html&lt;/p&gt;
+&lt;p&gt;在github上新建一个repository，然后在本地clone下来，git clone git@github.com:whzhcahzxh/sentimentAnalysis&lt;/p&gt;
+&lt;p&gt;将已经写好的文件拷入其中，或者自己写文件，cp -a /home/administrator/Python/sentimentAnalysis/ /home/administrator/git/repos/sentimentAnalysis/&lt;/p&gt;
+&lt;p&gt;将文件加入缓存git add .&lt;/p&gt;
+&lt;p&gt;提交git commit -m "从本地上传"&lt;/p&gt;
+&lt;p&gt;上传git push&lt;/p&gt;
+&lt;p&gt;下载是git pull&lt;/p&gt;
+&lt;p&gt;其中，如果要改remote origin： git remote add origin git@github.com:whzhcahzxh/sentimentAnalysis.git&lt;/p&gt;
+&lt;p&gt;删除以后remote origin： git remote rm origin&lt;/p&gt;</summary><category term="github"></category></entry><entry><title>第一篇blog，for 舒凌</title><link href="/%E5%8A%AA%E5%8A%9B.html" rel="alternate"></link><updated>2014-01-23T16:35:00+08:00</updated><author><name>HAO</name></author><id>tag:,2014-01-23:努力.html</id><summary type="html">&lt;p&gt;【github博客开启】
+年底了，感谢一直给我鼓励和陪我前进的舒凌同志（穷游网产品经理），我走技术，你走产品。共同创造明天，共勉。&lt;/p&gt;
+&lt;p&gt;从csdn转到github是个很难的决定，因为从单纯的写blog到用markdown写代码发微博是个很不容易的事情。虽然几个小时就学会了吧，嘿嘿，得意一下...完全没有玩过git的人到会使用github，会用github发表博文，自我感觉还是很有成就感的。&lt;/p&gt;
+&lt;p&gt;今年我的成果是做了音频的特征提取，拷贝检测系统（注：类似shazam），完成了音乐的音高和节奏的提取（注：类似唱吧），并且在数据分析和数据挖掘方面做了很多小的工作。&lt;/p&gt;
+&lt;p&gt;虽然做的工作很杂，但是我终于下定决心要走数据挖掘这条路，算是一个个人工作的突破了。兴趣是一方面，未来的判断是一方面，个人知识积累也是一方面，毕竟爱丁堡人工智能专业给我的知识是一个较高的起点，不能浪费啊。&lt;/p&gt;
+&lt;p&gt;虽然公司的环境可能并不能给我很好的发展，但是我希望我能靠着自己的学习能力做出更多的发展。今年，从学生转型为一个工程师（不是程序员），c++语言从可以用到熟悉是个不错的过程，java上手回顾了一番，增加了对R，weka的学习，而且了解了jsp的c/s模型，自己还学习了python，已经熟悉了相当多的模块，并在多个语言中判断，选择python&amp;amp;c++为个人专精方向。下一步就是开始熟悉python的网络框架和模板框架。&lt;/p&gt;
+&lt;p&gt;因为最近刚刚在谈薪资，满脑子都是这方面的话题。公司给的待遇不能很满足逐步增大的生活压力，但是公司的工作环境有很大的空间，给了很多自学的机会，确实是一个两难的选择。&lt;/p&gt;
+&lt;p&gt;想哪里写到哪里，静下心来，开始转移blog吧。&lt;/p&gt;
+&lt;p&gt;马上要过年了，祝新年快乐～马上开心。&lt;/p&gt;</summary><category term="舒凌"></category><category term="start， 2013"></category></entry></feed>

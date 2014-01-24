@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Brown Stone  
+Description: A two-column, fixed-width design with dark color scheme.
+Version    : 1.0
+Released   : 20100928
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>机器学习笔记</title>
+<link href="/theme/css/style.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="/" type="application/atom+xml" rel="alternate" title="Hao's blog ATOM Feed" />
+</head>
+<body>
+<div id="wrapper">
+	<div id="page">
+		<div id="page-bgtop">
+			<div id="page-bgbtm">
+    
+                        	<div id="content">
+					<div class="post">
+						<h2 class="title"><a href="ji-qi-xue-xi-bi-ji.html">机器学习笔记</a></h2>
+						<p class="meta"><span class="date">Le 四 23 一月 2014 </span><span class="posted">Par <a href="#">HAO</a></span><span>&nbsp; | Catégorie : <a href="/category/suan-fa.html">算法</a></span></p>
+					<p class="meta">Tags : <span><a href="/tag/suan-fa.html">算法</a> / </span>
+</p>	
+						<div style="clear: both;">&nbsp;</div>
+						<div class="entry">
+						 <p>机器学习分作监督学习和非监督学习：其中，</p>
+<p>监督学习是有预测结果的，最常见的算法是分类算法</p>
+<p>非监督学习是无预测结果的，最常见的算法是聚类算法</p>
+<p>梯度下降算法是用于得到极值点的方法，在线性回归中，梯度下降算法可以应用于回归过程，得到最小二乘法的结果。</p>
+<p>线性回归算法试图用线性方程来回归数据集，回归时，一个或多个outlier的存在会把回归方程畸形化，所以在做分类时，用线性回归不是一个好主意，而做logistic回归的时候，可以将输出从连续值转换为0或者1的分类值，适用于分类算法。logistic回归的时候，ML算法同样会运用梯度上升的算法得到极大值点时候的theta值，从而确定分类关系。</p>
+<p>牛顿梯度算法是梯度下降算法的优化，可以快速算法过程，在数据维度为vector的时候，每一次逼近都需要计算一次hessian矩阵的逆（二次求导矩阵），因此当维度过大的时候计算量会很大。</p>
+<p>线性回归容易欠拟合，如果当选择维度过多的时候又容易出现过拟合的情况。过拟合一般是分类算法最大的问题，因此，有很多解决算法出现，比如对于决策树算法，RF（随机森林）是一个避免过拟合的优化。</p>
+<p>discriminative model（判别式模型）包括logistic回归，SVM等，是将数据集分类的模型，而另一类generative model（产生式模型）的思想是，先分别取各类数据集，建立模型来总结各类数据，然后当新的数据出现的时候，分析他更类似于哪种模型来做区分，常见的基本都属于这类，包括高斯模型（建立多维高斯模型来描述各类模型），决策树模型，主题模型，高斯模型等等。</p>
+<p>混合高斯模型可以推出logistic回归的sigmoid分布，将高斯的概率值设为0~1，Pr(y=1|x)的值在高斯x轴上呈现sigmoid函数形状（s型）。</p>
+<p>产生式模型需要对于数据有清晰的认识，对于高斯分布，如果建立了泊松分布或者是伯努利分布，那么在模型的判别上会造成准确性的丧失，而判别模型则不需要考虑数据模型的分布。</p>
+<p>判别模型需要大量的数据支撑从而得到较为正确的分类器，而产生式模型没有这个限制。</p>
+<p>对于垃圾邮件甄别算法，离散型词袋可以用朴素贝叶斯算法进行分类，而对于因为分类从未出现的词导致概率为0/0，可以使用laplace平滑算法（即给所有的计数都加1）的方式来解决。</p>
+<p>甄别方法有两种：</p>
+<p>1.一个词是否出现为值，0和1</p>
+<p>2.记录每个词出现的概率，用多项分布的模型，将所有词的概率相乘(较优于第一种)</p>
+<p>logistic回归的核H()为e^(theta*T)，所以指数型的核都会得到线性的分类结果，而高斯分布也是指数型的核，为了得到非指数型的核，可以考虑用神经网络的方法，即用多个核形成hidden layer，然后再用一个输出核将hidden layer的输出作为输入，得到最终输出。</p>
+<p>神经网络算法不如SVM常用，而SVM也是现在最常用的算法，神经网络算法的最大问题是取得最优值的难度太大，如果是Logistic回归算法，用梯度下降算法或者ML算法可以得到一个全局的最优解，对于有隐藏层的神经网络来说，会有多个最优解的结果。</p>
+<p>神经网络得到最优解的算法是反向传播（BP）算法</p>
+<p>SVM的核是将数据集投射到高维空间中，然后SVM算法在线性可分的假设下将数据分类，当数据不是线性可分的时候，有软分类算法（L1型SVM算法--加入补偿系数；L2型SVM算法--SMO等）。</p>
+<p>用于SMO取得最佳值的算法是坐标上升算法，即，在若干未知系数求最大值的时候，改变某一个系数，固定其他系数不变，每次迭代取得最佳值。</p>
+<p>坐标上升算法相比于牛顿算法等需要迭代更多次数，但是每次迭代的计算量有可能很cheap，对于SMO算法的最优值取得有很好的效果。</p>
+<p>识别ocr或者图像的时候，比如邮编，传统的算法中神经网络算法的性能是最好的，但是SVM算法在使用多项式核和高斯核的时候，可以得到一个不逊于神经网络算法的结果，其中，SVM算法允许任意打乱pixel的顺序，不考虑几个pixel之间的相对位置关系，很有意义。</p>
+<p>识别蛋白质族的时候，也优选SVM算法，将四个字母得到4^26次方个组合形式，只统计各种氨基酸出现的次数，由于组合形式太多，考虑采用内积的方式简化（？）</p>	
+						</div>
+					</div>
+			      
+					<div style="clear: both;">&nbsp;</div>
+                                        <div class="post">
+                                        <h2 class="title">Commentaires !</h2>
+                                            <div id="disqus_thread"></div>
+                                            <script type="text/javascript">
+                                               var disqus_identifier = "ji-qi-xue-xi-bi-ji.html";
+                                               (function() {
+                                               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                                               dsq.src = 'http://whzhcahzxh.disqus.com.disqus.com/embed.js';
+                                               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                                              })();
+                                            </script>
+                                        </div>
+				</div>
+				<!-- end #content -->
+				<div id="sidebar">
+					<div id="logo">
+						<h1><a href="">Hao's blog</h1>
+					</div>
+					<div id="menu">
+						<ul>
+							<li class="current_page_item"><a href="">Home</a></li>
+							<li><a href="/archives.html">Archives</a></li>
+						</ul>
+					</div>
+					<ul>
+						<li>
+							<h2>Catégories</h2>
+							<ul>
+								 <li ><a href="/category/coreseek.html">coreseek</a></li>
+								 <li ><a href="/category/github.html">github</a></li>
+								 <li ><a href="/category/sheng-huo.html">生活</a></li>
+								 <li class="active"><a href="/category/suan-fa.html">算法</a></li>
+								 <li ><a href="/category/wen-ben-wa-jue.html">文本挖掘</a></li>
+							</ul>
+						</li>
+						<li>
+							<h2>Blogroll</h2>
+							<ul>
+                                                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                                                            <li><a href="http://python.org/">Python.org</a></li>
+                                                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                                                            <li><a href="#">You can modify those links in your config file</a></li>
+							</ul>
+						</li>
+                                                <li>
+                                                        <h2>Social</h2>
+                                                        <ul>
+                                                            <li><a href="/" rel="alternate">Flux Atom</a></li>
+                                                            <li><a href="http://blog.csdn.net/whzhcahzxh">原csdn_link</a></li>
+                                                            <li><a href="http://weibo.com/itgeeks">我的微博_link</a></li>
+                                                            <li><a href="http://weibo.com/itproduct">新产品平台微博_link</a></li>
+                                                        </ul>
+                                                </li><!-- /.social -->
+						<li>
+						        <h2>Tags</h2>
+						        <ul>
+                                                                <li><a href="/tag/coreseek.html">coreseek</a></li>
+                                                                <li><a href="/tag/suan-fa.html">算法</a></li>
+                                                                <li><a href="/tag/github.html">github</a></li>
+                                                                <li><a href="/tag/start-2013.html">start， 2013</a></li>
+                                                                <li><a href="/tag/python.html">Python</a></li>
+                                                                <li><a href="/tag/mongodb.html">mongoDB</a></li>
+                                                                <li><a href="/tag/tf-idf.html">TF-IDF</a></li>
+                                                                <li><a href="/tag/shu-ling.html">舒凌</a></li>
+                                                                <li><a href="/tag/wen-ben-wa-jue.html">文本挖掘</a></li>
+                                                                <li><a href="/tag/r.html">R</a></li>
+                                                                <li><a href="/tag/ubuntu.html">Ubuntu</a></li>
+                                                                <li><a href="/tag/gensim.html">gensim</a></li>
+						        </ul>
+						</li>
+						
+						
+					</ul>
+				</div>
+				<!-- end #sidebar -->
+				<div style="clear: both;">&nbsp;</div>
+			</div>
+		</div>
+	</div>
+	<!-- end #page -->
+
+<div id="footer">
+	<p>Copyright (c) 2008 Sitename.com. All rights reserved. Design by <a href="http://www.freecsstemplates.org/">CSS Templates</a>.</p>
+	<p>Proudly powered by <a href="http://alexis.notmyidea.org/pelican/">pelican</a>, which takes great advantages of <a href="http://python.org">python</a>.
+</p>
+</div>
+    <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+    try {
+        var pageTracker = _gat._getTracker("UA-47448544-1");
+    pageTracker._trackPageview();
+    } catch(err) {}</script>
+<!-- end #footer -->
+</body>
+</html>

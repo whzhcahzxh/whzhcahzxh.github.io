@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Brown Stone  
+Description: A two-column, fixed-width design with dark color scheme.
+Version    : 1.0
+Released   : 20100928
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Hao's blog - coreseek</title>
+<link href="/theme/css/style.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="/" type="application/atom+xml" rel="alternate" title="Hao's blog ATOM Feed" />
+</head>
+<body>
+<div id="wrapper">
+	<div id="page">
+		<div id="page-bgtop">
+			<div id="page-bgbtm">
+ 
+        
+				<div id="content">
+					<div class="post">
+						<h2 class="title"><a href="/ubuntu-1204an-zhuang-coreseek-41beta.html">ubuntu 12.04安装coreseek 4.1beta</a></h2>
+						<p class="meta"><span class="date">Le  </span><span class="posted">Par <a href="#">HAO</a></span><span>&nbsp; | Catégorie : <a href="/category/coreseek.html">coreseek</a></span></p>
+					<p class="meta">Tags : <span><a href="/tag/coreseek.html">coreseek</a> / </span>
+<span><a href="/tag/ubuntu.html">Ubuntu</a> / </span>
+</p>
+						<div style="clear: both;">&nbsp;</div>
+						<div class="entry">
+						 <p>coreseek安装需要预装的软件：
+shell&gt;apt-get install make gcc g++ automake libtool m4 autoconf mysql-client libmysqlclient15-dev libxml2-dev libexpat1-dev</p>
+<h2>切换到root用户，确保拥有完整的权限来安装软件</h2>
+<p>$ su root</p>
+<p>$ cd coreseek-4.1-beta</p>
+<h2>中文测试环境检查：</h2>
+<p>$  locale</p>
+<h2>以下为核心项，locale为zh_CN.UTF-8，就可以正常显示和输入中文；</h2>
+<h2>如果不能正常显示中文，则后面的中文测试部分无法正常进行，但不会影响coreseek的实际功能；</h2>
+<p>LANG=zh_CN.UTF-8
+LC_ALL="zh_CN.UTF-8"</p>
+<h2>确保可以正常显示，否则请检查当前环境的locale配置，以及当前环境或者客户端已设置好支持UTF-8中文字符显示</h2>
+<p>$ cat testpack/var/test/test.xml</p>
+<h2>安装coreseek开发的mmseg，为coreseek提供中文分词功能</h2>
+<p>$ cd mmseg-3.2.14</p>
+<h2>ubuntu环境下，需要使用ACLOCAL_FLAGS="-I /usr/share/aclocal" ./bootstrap</h2>
+<p>$ ./bootstrap
+$ ./configure --prefix=/usr/local/mmseg3
+$ make &amp;&amp; make install</p>
+<h2>如果提示libtool: unrecognized option `--tag=CC' ，请查看libtool问题解决方案</h2>
+<h2>安装完成后，mmseg使用的词典和配置文件，将自动安装到/usr/local/mmseg3/etc中</h2>
+<h2>中文分词测试，显示不正常，请检查当前环境下的locale和UTF-8中文字符显示设置</h2>
+<p>$  /usr/local/mmseg3/bin/mmseg -d /usr/local/mmseg3/etc src/t1.txt
+    中文/x 分/x 词/x 测试/x 
+    中国人/x 上海市/x 
+Word Splite took: 1 ms.</p>
+<h2>安装coreseek：</h2>
+<p>$ cd csft-/usr/local/coreseek/bin/indexer -c etc/csft.conf --all --rotate</p>
+<h2>执行configure，进行编译配置：</h2>
+<p>$ sh buildconf.sh
+$ ./configure --prefix=/usr/local/coreseek --without-python --without-unixodbc --with-mmseg --with-mmseg-includes=/usr/local/mmseg3/include/mmseg/ --with-mmseg-libs=/usr/local/mmseg3/lib/ --with-mysql</p>
+<p>$ make &amp;&amp; make install</p>
+<p>如果编译出错，出现类似于：
+make[2]: <strong><em> [sphinxexpr.o] Error 1
+make[2]: Leaving directory <code>/home/mac/Downloads/coreseek-4.1-beta/csft-4.1/src'
+make[1]: *** [all] Error 2
+make[1]: Leaving directory</code>/home/mac/Downloads/coreseek-4.1-beta/csft-4.1/src'
+make: </em></strong> [all-recursive] Error 1
+的问题，需要打一个补丁：</p>
+<p>一个有用的链接：http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=667378，是关于coreseek上游的sphinx的同样问题的，看了一下了解似乎是gcc 4.7的C++作用域的问题，上面的debian bugs里面提供了一个patch，看了下patch的内容，也对自己本地的coreseek的制作了同样的补丁，压缩包发布如下，使用时注意版本：sphinxexpr.cpp.patch.zip</p>
+<p>root@china:/home/china/Downloads/coreseek-4.1-beta/csft-4.1# patch -p1 &lt; /home/china/Downloads/sphinxexpr.cpp-csft-4.1-beta.patch
+can't find file to patch at input line 3
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:</p>
+<hr />
+<table>
+<thead>
+<tr>
+<th>--- /home/china/Downloads/coreseek-4.1-beta/csft-4.1/src/sphinxexpr.cpp    2011-10-07 20:08:58.000000000 +0800</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>--------------------------</td>
+</tr>
+<tr>
+<td>File to patch:</td>
+</tr>
+</tbody>
+</table>
+<p>在file to patch:后输入sphinxexpr.cpp文件的位置  我当时输入的是  /home/china/Downloads/coreseek-4.1-beta/csft-4.1/src/sphinxexpr.cpp</p>
+<p>补丁打后就可以直接编译通过了</p>
+<h2>配置测试，测试是否可以正确运行</h2>
+<p>$ /usr/local/coreseek/bin/indexer -c /usr/local/coreseek/etc/sphinx-min.conf.dist</p>
+<h2>以下为正常测试时的提示信息：</h2>
+<p>Coreseek Fulltext 4.1 [ Sphinx 2.0.2-dev (r2922)]
+Copyright (c) 2007-2011,
+Beijing Choice Software Technologies Inc (http://www.coreseek.com)</p>
+<p>ERROR: nothing to do.</p>
+<h2>至此，coreseek基础环境正常安装</h2>
+<p>$ cd testpack</p>
+<p>$  /usr/local/coreseek/bin/indexer -c etc/csft.conf --all</p>
+<p>$ /usr/local/coreseek/bin/search -c etc/csft.conf -a 服务</p>
+<h2>以下为正常测试搜索关键词"服务"的数据</h2>
+<p>Coreseek Fulltext 4.1 [ Sphinx 2.0.2-dev (r2922)]
+Copyright (c) 2007-2011,
+Beijing Choice Software Technologies Inc (http://www.coreseek.com)</p>
+<p>using config file 'etc/csft.conf'...
+index 'xml': query '服务 ': returned 1 matches of 1 total in 0.015 sec</p>
+<p>displaying matches:
+1. document=3, weight=1, published=Wed Mar 31 21:01:00 2010, author_id=2</p>
+<p>words:
+1. '服务': 1 documents, 1 hits</p>
+<p>$  /usr/local/coreseek/bin/searchd -c etc/csft.conf</p>
+<h2>以下为正常开启搜索服务时的提示信息：（csft-4.0版类似）</h2>
+<p>Coreseek Fulltext 4.1 [ Sphinx 2.0.2-dev (r2922)]
+    Copyright (c) 2007-2010,
+    Beijing Choice Software Technologies Inc (http://www.coreseek.com)</p>
+<div class="highlight"><pre><span class="n">using</span> <span class="n">config</span> <span class="n">file</span> <span class="err">&#39;</span><span class="n">etc</span><span class="o">/</span><span class="n">csft</span><span class="p">.</span><span class="n">conf</span><span class="err">&#39;</span><span class="p">...</span>
+<span class="n">listening</span> <span class="n">on</span> <span class="n">all</span> <span class="n">interfaces</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">9312</span>
+</pre></div>
+
+
+<h2>如要停止搜索服务，/usr/local/coreseek/bin/searchd -c etc/csft.conf --stop</h2>
+<h2>如要已启动服务，要更新索引，/usr/local/coreseek/bin/indexer -c etc/csft.conf --all --rotate</h2>
+<h2>然后，请参考csft-4.1下api目录中的相关文件，使用PHP、Python、Ruby、Java来测试搜索服务；也可以前往&lt; a href="/products-install/step_by_step/"&gt;搜索服务建立三步曲，查看第三步使用PHP测试。</h2>
+<p>文章参考了并自己测试通过：http://blog.csdn.net/liangpz521/article/details/8795286和http://blog.csdn.net/andybegin/article/details/8724506
+感谢原作者</p>	
+						</div>
+					</div>
+	
+			                <div class="post">
+			                        <h2 class="title">Autres articles</h2>
+			                </div>
+        
+ 
+			                <div class="post summary">
+						<h2 class="title"><a href="/coreseekda-pei-shi-yong-pythonyuan.html">coreseek搭配使用python源</a></h2>
+						<p class="meta"><span class="date">Le 四 23 一月 2014</span><span class="posted">Par <a href="#">HAO</a></span></p>
+						<div style="clear: both;">&nbsp;</div>
+						<div class="entry">
+						 <p>coreseek, Ubuntu, Python</p>	
+						 <a class="readmore" href="/coreseekda-pei-shi-yong-pythonyuan.html">Lire la suite …</a>
+						</div>
+					</div>
+        
+ 
+			                <div class="post summary">
+						<h2 class="title"><a href="/coreseektong-guo-pythondu-qu-mongodbshu-ju.html">coreseek通过python读取mongoDB数据</a></h2>
+						<p class="meta"><span class="date">Le 四 23 一月 2014</span><span class="posted">Par <a href="#">HAO</a></span></p>
+						<div style="clear: both;">&nbsp;</div>
+						<div class="entry">
+						 <p>coreseek, Ubuntu, Python, mongoDB</p>	
+						 <a class="readmore" href="/coreseektong-guo-pythondu-qu-mongodbshu-ju.html">Lire la suite …</a>
+						</div>
+					</div>
+        
+ 
+			                <div class="post summary">
+						<h2 class="title"><a href="/coreseekpei-zhi.html">coreseek配置</a></h2>
+						<p class="meta"><span class="date">Le 四 23 一月 2014</span><span class="posted">Par <a href="#">HAO</a></span></p>
+						<div style="clear: both;">&nbsp;</div>
+						<div class="entry">
+						 <p>coreseek</p>	
+						 <a class="readmore" href="/coreseekpei-zhi.html">Lire la suite …</a>
+						</div>
+					</div>
+					<div style="clear: both;">&nbsp;</div>
+				</div>
+				<div id="sidebar">
+					<div id="logo">
+						<h1><a href="">Hao's blog</h1>
+					</div>
+					<div id="menu">
+						<ul>
+							<li class="current_page_item"><a href="">Home</a></li>
+							<li><a href="/archives.html">Archives</a></li>
+						</ul>
+					</div>
+					<ul>
+						<li>
+							<h2>Catégories</h2>
+							<ul>
+								 <li class="active"><a href="/category/coreseek.html">coreseek</a></li>
+								 <li ><a href="/category/github.html">github</a></li>
+								 <li ><a href="/category/sheng-huo.html">生活</a></li>
+								 <li ><a href="/category/suan-fa.html">算法</a></li>
+								 <li ><a href="/category/wen-ben-wa-jue.html">文本挖掘</a></li>
+							</ul>
+						</li>
+						<li>
+							<h2>Blogroll</h2>
+							<ul>
+                                                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                                                            <li><a href="http://python.org/">Python.org</a></li>
+                                                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                                                            <li><a href="#">You can modify those links in your config file</a></li>
+							</ul>
+						</li>
+                                                <li>
+                                                        <h2>Social</h2>
+                                                        <ul>
+                                                            <li><a href="/" rel="alternate">Flux Atom</a></li>
+                                                            <li><a href="http://blog.csdn.net/whzhcahzxh">原csdn_link</a></li>
+                                                            <li><a href="http://weibo.com/itgeeks">我的微博_link</a></li>
+                                                            <li><a href="http://weibo.com/itproduct">新产品平台微博_link</a></li>
+                                                        </ul>
+                                                </li><!-- /.social -->
+						<li>
+						        <h2>Tags</h2>
+						        <ul>
+                                                                <li><a href="/tag/coreseek.html">coreseek</a></li>
+                                                                <li><a href="/tag/suan-fa.html">算法</a></li>
+                                                                <li><a href="/tag/github.html">github</a></li>
+                                                                <li><a href="/tag/start-2013.html">start， 2013</a></li>
+                                                                <li><a href="/tag/python.html">Python</a></li>
+                                                                <li><a href="/tag/mongodb.html">mongoDB</a></li>
+                                                                <li><a href="/tag/tf-idf.html">TF-IDF</a></li>
+                                                                <li><a href="/tag/shu-ling.html">舒凌</a></li>
+                                                                <li><a href="/tag/wen-ben-wa-jue.html">文本挖掘</a></li>
+                                                                <li><a href="/tag/r.html">R</a></li>
+                                                                <li><a href="/tag/ubuntu.html">Ubuntu</a></li>
+                                                                <li><a href="/tag/gensim.html">gensim</a></li>
+						        </ul>
+						</li>
+						
+						
+					</ul>
+				</div>
+				<!-- end #sidebar -->
+				<div style="clear: both;">&nbsp;</div>
+			</div>
+		</div>
+	</div>
+	<!-- end #page -->
+
+<div id="footer">
+	<p>Copyright (c) 2008 Sitename.com. All rights reserved. Design by <a href="http://www.freecsstemplates.org/">CSS Templates</a>.</p>
+	<p>Proudly powered by <a href="http://alexis.notmyidea.org/pelican/">pelican</a>, which takes great advantages of <a href="http://python.org">python</a>.
+</p>
+</div>
+    <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+    try {
+        var pageTracker = _gat._getTracker("UA-47448544-1");
+    pageTracker._trackPageview();
+    } catch(err) {}</script>
+<!-- end #footer -->
+</body>
+</html>

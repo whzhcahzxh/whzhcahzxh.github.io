@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Brown Stone  
+Description: A two-column, fixed-width design with dark color scheme.
+Version    : 1.0
+Released   : 20100928
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>TF-IDF提取关键词并用余弦算法计算相似度</title>
+<link href="/theme/css/style.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="/" type="application/atom+xml" rel="alternate" title="Hao's blog ATOM Feed" />
+</head>
+<body>
+<div id="wrapper">
+	<div id="page">
+		<div id="page-bgtop">
+			<div id="page-bgbtm">
+    
+                        	<div id="content">
+					<div class="post">
+						<h2 class="title"><a href="tf-idfti-qu-guan-jian-ci-bing-yong-yu-xian-suan-fa-ji-suan-xiang-si-du.html">TF-IDF提取关键词并用余弦算法计算相似度</a></h2>
+						<p class="meta"><span class="date">Le 四 23 一月 2014 </span><span class="posted">Par <a href="#">HAO</a></span><span>&nbsp; | Catégorie : <a href="/category/wen-ben-wa-jue.html">文本挖掘</a></span></p>
+					<p class="meta">Tags : <span><a href="/tag/wen-ben-wa-jue.html">文本挖掘</a> / </span>
+<span><a href="/tag/python.html">Python</a> / </span>
+<span><a href="/tag/tf-idf.html">TF-IDF</a> / </span>
+</p>	
+						<div style="clear: both;">&nbsp;</div>
+						<div class="entry">
+						 <p>TF-IDF算法是一个很易懂的关键词提取算法，算法易实现，易懂且易操作，缺陷是将词频作为唯一考虑因素，且对于位置没有敏感性，位置的问题可以通过人为添加权重的方式改善，比如给第一段最后一段，或者每一段的第一句话加高权重。。。（类似于总分，总分总啥的文本结构吧）</p>
+<p>TF-IDF算法简单描述：</p>
+<p>TF是Term Frequency的缩写，即单纯的计算词频，比如，两句话分别是“我最喜欢吃我做的土豆”，“我最喜欢海”，因为是简介，就不讲究完备性，不将这句话分词，只考虑每个字，那么，第一句话中，“我”出现了两次，其他的字各出现了一次，第二句中，所有的字都出现了一次，那么计算TF的时候，只用将每个字的出现次数除以总字数即可：</p>
+<p>TF = 文章中出现次数/文章总词数</p>
+<p>【我：0.2，最：0.1，喜：0.1，欢：0.1，吃：0.1，做：0.1，的：0.1，土：0.1，豆：0.1】</p>
+<p>【我：0.2，最：0.2，喜：0.2，欢：0.2，海：0.2】</p>
+<p>为了避免“我”，"最"等等stop word占权重太大，考虑将这种会出现在大部分文章中的字减小概率，这时候引用IDF（Inverse Document Frequency），就是一个如果含有该词的文档出现次数越多，值越小的公式</p>
+<p>IDF = log(总文章数/含有该词的文章数)</p>
+<p>为了避免出现除0的情况出现，一般会给分母+1，类似于laplace平滑意义：</p>
+<p>IDF = log(总文章数/（含有该词的文章数+1）)</p>
+<p>TF-IDF的值，就是将TF*IDF，然后排序，值高的词认为更有意义，作为代表性输出</p>
+<hr />
+<p>余弦相似度是计算文档相似度的方法</p>
+<p>参考http://blog.csdn.net/whzhcahzxh/article/details/17528261里面的实现</p>
+<p>将一段话转换为语料库后，得到多维度向量，用a<em>b/(|a|</em>|b|)计算余弦值，值越大两个向量越相似</p>	
+						</div>
+					</div>
+			      
+					<div style="clear: both;">&nbsp;</div>
+                                        <div class="post">
+                                        <h2 class="title">Commentaires !</h2>
+                                            <div id="disqus_thread"></div>
+                                            <script type="text/javascript">
+                                               var disqus_identifier = "tf-idfti-qu-guan-jian-ci-bing-yong-yu-xian-suan-fa-ji-suan-xiang-si-du.html";
+                                               (function() {
+                                               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                                               dsq.src = 'http://whzhcahzxh.disqus.com.disqus.com/embed.js';
+                                               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                                              })();
+                                            </script>
+                                        </div>
+				</div>
+				<!-- end #content -->
+				<div id="sidebar">
+					<div id="logo">
+						<h1><a href="">Hao's blog</h1>
+					</div>
+					<div id="menu">
+						<ul>
+							<li class="current_page_item"><a href="">Home</a></li>
+							<li><a href="/archives.html">Archives</a></li>
+						</ul>
+					</div>
+					<ul>
+						<li>
+							<h2>Catégories</h2>
+							<ul>
+								 <li ><a href="/category/coreseek.html">coreseek</a></li>
+								 <li ><a href="/category/github.html">github</a></li>
+								 <li ><a href="/category/sheng-huo.html">生活</a></li>
+								 <li ><a href="/category/suan-fa.html">算法</a></li>
+								 <li class="active"><a href="/category/wen-ben-wa-jue.html">文本挖掘</a></li>
+							</ul>
+						</li>
+						<li>
+							<h2>Blogroll</h2>
+							<ul>
+                                                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                                                            <li><a href="http://python.org/">Python.org</a></li>
+                                                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                                                            <li><a href="#">You can modify those links in your config file</a></li>
+							</ul>
+						</li>
+                                                <li>
+                                                        <h2>Social</h2>
+                                                        <ul>
+                                                            <li><a href="/" rel="alternate">Flux Atom</a></li>
+                                                            <li><a href="http://blog.csdn.net/whzhcahzxh">原csdn_link</a></li>
+                                                            <li><a href="http://weibo.com/itgeeks">我的微博_link</a></li>
+                                                            <li><a href="http://weibo.com/itproduct">新产品平台微博_link</a></li>
+                                                        </ul>
+                                                </li><!-- /.social -->
+						<li>
+						        <h2>Tags</h2>
+						        <ul>
+                                                                <li><a href="/tag/coreseek.html">coreseek</a></li>
+                                                                <li><a href="/tag/suan-fa.html">算法</a></li>
+                                                                <li><a href="/tag/github.html">github</a></li>
+                                                                <li><a href="/tag/start-2013.html">start， 2013</a></li>
+                                                                <li><a href="/tag/python.html">Python</a></li>
+                                                                <li><a href="/tag/mongodb.html">mongoDB</a></li>
+                                                                <li><a href="/tag/tf-idf.html">TF-IDF</a></li>
+                                                                <li><a href="/tag/shu-ling.html">舒凌</a></li>
+                                                                <li><a href="/tag/wen-ben-wa-jue.html">文本挖掘</a></li>
+                                                                <li><a href="/tag/r.html">R</a></li>
+                                                                <li><a href="/tag/ubuntu.html">Ubuntu</a></li>
+                                                                <li><a href="/tag/gensim.html">gensim</a></li>
+						        </ul>
+						</li>
+						
+						
+					</ul>
+				</div>
+				<!-- end #sidebar -->
+				<div style="clear: both;">&nbsp;</div>
+			</div>
+		</div>
+	</div>
+	<!-- end #page -->
+
+<div id="footer">
+	<p>Copyright (c) 2008 Sitename.com. All rights reserved. Design by <a href="http://www.freecsstemplates.org/">CSS Templates</a>.</p>
+	<p>Proudly powered by <a href="http://alexis.notmyidea.org/pelican/">pelican</a>, which takes great advantages of <a href="http://python.org">python</a>.
+</p>
+</div>
+    <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+    try {
+        var pageTracker = _gat._getTracker("UA-47448544-1");
+    pageTracker._trackPageview();
+    } catch(err) {}</script>
+<!-- end #footer -->
+</body>
+</html>
